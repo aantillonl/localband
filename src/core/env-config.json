@@ -1,0 +1,15 @@
+{
+    "development": {
+        "ui_port": 3001,
+        "api_port": 4001,
+        "api_url": "http://localhost:4001"
+    },
+    "staging": {
+        "ui_port": 3002,
+        "api_url": "https://ozone-staging.herokuapp.com"
+    },
+    "production": {
+        "ui_port": 3003,
+        "api_url": "https://ozone-production.herokuapp.com"
+    }
+}
