@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {fetchCities} from './searchBoxSlice';
 
-function SearchBox({fetchStatus, fetchCities }) {
+function SearchBox({fetchStatus, searchResults, fetchCities }) {
   return (
     <div>
       <label htmlFor="search_box">
@@ -22,6 +22,12 @@ function SearchBox({fetchStatus, fetchCities }) {
 SearchBox.propTypes = {
   fetchStatus: PropTypes.string.isRequired,
   fetchCities: PropTypes.func.isRequired,
+  searchResults: PropTypes.arrayOf(PropTypes.object),
 };
-const mapStateToProps = (state) => ({fetchStatus: state.fetchStatus})
+const mapStateToProps = (state) => (
+  {
+    fetchStatus: state.fetchStatus,
+    searchResults: state.searchResults,
+  }
+)
 export default connect(mapStateToProps, { fetchCities })(SearchBox);
