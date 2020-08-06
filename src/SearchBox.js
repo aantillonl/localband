@@ -1,33 +1,66 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import searchBoxSlice from './searchBoxSlice';
 import {fetchCities} from './searchBoxSlice';
 
-function SearchBox({fetchStatus, searchResults, fetchCities }) {
+function SearchBox({
+  fetchCities,
+  fetchStatus,
+  searchResults,
+  preSearchTimeout,
+  setPreSearchTimeout
+}) {
+
+  let suggestions
+  if (fetchStatus==='FINISHED') {
+    if (searchResults) {
+      suggestions = <ul class="options">
+        {searchResults.map((res) => <li key={res.key}><a href={res.link}>{res.name}</a></li>)}
+      </ul>
+    }
+    else {
+      suggestions = <div>Sorry, no results...</div>
+    }
+  }
   return (
-    <div>
+    <div class="searchbox">
       <label htmlFor="search_box">
         Find your local bands:
-        <input
+      </label>
+      <br></br>
+      <input
           id="search_box"
           type="text"
-          onChange={event => fetchCities(event.target.value)}
+          onChange={event => {
+            clearTimeout(preSearchTimeout);
+            setPreSearchTimeout(setTimeout(fetchCities.bind(this, event.target.value), 1000));
+          }}
         />
-      </label>
-      <label>{fetchStatus}</label>
+      {suggestions}
     </div>
   );
 }
 
 SearchBox.propTypes = {
+  searchString: PropTypes.string.isRequired,
   fetchStatus: PropTypes.string.isRequired,
   fetchCities: PropTypes.func.isRequired,
   searchResults: PropTypes.arrayOf(PropTypes.object),
+  preSearchTimeout: PropTypes.number,
 };
 const mapStateToProps = (state) => (
   {
+    searchString: state.searchString,
     fetchStatus: state.fetchStatus,
     searchResults: state.searchResults,
+    preSearchTimeout: state.preSearchTimeout
   }
 )
-export default connect(mapStateToProps, { fetchCities })(SearchBox);
+
+const mapDispatch = {
+  setSearchString: searchBoxSlice.actions.setSearchString,
+  setPreSearchTimeout: searchBoxSlice.actions.setPreSearchTimeout,
+  fetchCities,
+}
+export default connect(mapStateToProps, mapDispatch)(SearchBox);

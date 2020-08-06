@@ -9,7 +9,7 @@ const apiUrl = envConfig[environment]['api_url'];
 const fetchCities = createAsyncThunk(
   'fetchCities',
   async (searchString, thunkAPI) => {
-    if (searchString.length < 4) return {...thunkAPI.getState(), cities: []}
+    if (searchString.length < 4) return {...thunkAPI.getState(), searchResults: []}
     thunkAPI.dispatch(searchBoxSlice.actions.startFetch())
     const response =  await axios.get(
       apiUrl,
@@ -34,20 +34,23 @@ const fetchCities = createAsyncThunk(
         output:'json'
       })
     )
-    return {fetchStatus: 'FINISHED', cities: response.data}
+    return response.data.data
   }
 )
 
 const searchBoxSlice = createSlice({
   name: 'searchBox',
-  initialState: { fetchStatus: 'DEFAULT', cities: [], delayedSearch: null },
+  initialState: { fetchStatus: 'DEFAULT', searchString: "" , searchResults: [], preSearchTimeout: null},
   reducers: {
+    setPreSearchTimeout: (state, action) => ({...state, preSearchTimeout: action.payload}),
     startFetch: (state) => ({ ...state,  fetchStatus: 'PENDING' }),
   },
   extraReducers: {
     [fetchCities.fulfilled]: (state, action) => {
-      console.log(action.payload)
-      return {...state, ...action.payload }
+      return {...state, fetchStatus: 'FINISHED', searchResults: action.payload }
+    },
+    [fetchCities.rejected]: (state, action) => {
+      return {...state }
     }
   }
 });

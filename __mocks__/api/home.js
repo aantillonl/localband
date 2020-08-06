@@ -1,4 +1,4 @@
 /* eslint-disable-next-line no-unused-vars */
 module.exports = function(req, res) {
-  res.json({ message: 'I am serving from mock server' });
+  res.json({ data: [{name: 'chihuahuita', key: 1, link: "https://somelink.com"}] });
 };
