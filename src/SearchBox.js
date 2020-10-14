@@ -1,30 +1,61 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import reactStringReplace from 'react-string-replace'
 import searchBoxSlice from './searchBoxSlice';
-import {fetchCities} from './searchBoxSlice';
+import {fetchCities, fetchBands} from './searchBoxSlice';
 
 function SearchBox({
+  searchString,
+  setSearchString,
   fetchCities,
   fetchStatus,
   searchResults,
   preSearchTimeout,
-  setPreSearchTimeout
+  setPreSearchTimeout,
+  changeSelection,
+  selectedOption,
+  fetchBands,
+  bandsList
 }) {
 
+  const onKeyDown = e => {
+    // User pressed the enter key
+    if (e.keyCode === 13) {
+      fetchBands()
+    }
+    // User pressed the up arrow, decrement the index
+    else if (e.keyCode === 38) {
+      changeSelection("UP")
+    }
+    // User pressed the down arrow, increment the index
+    else if (e.keyCode === 40) {
+      changeSelection("DOWN")
+    } 
+  }
+  
   let suggestions
   if (fetchStatus==='FINISHED') {
-    if (searchResults) {
-      suggestions = <ul class="options">
-        {searchResults.map((res) => <li key={res.key}><a href={res.link}>{res.name}</a></li>)}
+    if (searchResults.length > 0) {
+      suggestions = <ul className="options">
+        {searchResults.map((suggestion, index) => {
+          return <li className={index === selectedOption ? "selected-option": null } key={index}>
+            {reactStringReplace(suggestion.name, searchString, (match, i)=><span key={i} style={{fontWeight:"bold"}}>{match}</span>)}
+          </li>
+        })
+        }
       </ul>
     }
     else {
       suggestions = <div>Sorry, no results...</div>
     }
   }
+
+  let bandsUnsortedList = <ul>
+    {bandsList.map((band, key) => <li key={key}>{band}</li>)}
+  </ul>
   return (
-    <div class="searchbox">
+    <div className="searchbox">
       <label htmlFor="search_box">
         Find your local bands:
       </label>
@@ -32,29 +63,39 @@ function SearchBox({
       <input
           id="search_box"
           type="text"
+          autoComplete="off"
+          value={searchString}
           onChange={event => {
+            setSearchString(event.target.value);
             clearTimeout(preSearchTimeout);
-            setPreSearchTimeout(setTimeout(fetchCities.bind(this, event.target.value), 1000));
+            setPreSearchTimeout(setTimeout(fetchCities, 1000));
           }}
+          onKeyDown={onKeyDown}
+          className={searchResults.length > 0? "with-suggestions": "no-suggestions"}
         />
       {suggestions}
+      {bandsUnsortedList}
     </div>
   );
 }
 
 SearchBox.propTypes = {
-  searchString: PropTypes.string.isRequired,
+  searchString: PropTypes.string,
   fetchStatus: PropTypes.string.isRequired,
   fetchCities: PropTypes.func.isRequired,
   searchResults: PropTypes.arrayOf(PropTypes.object),
   preSearchTimeout: PropTypes.number,
+  selectedOption: PropTypes.number,
+  bandsFromLocation: PropTypes.arrayOf(PropTypes.object)
 };
 const mapStateToProps = (state) => (
   {
     searchString: state.searchString,
     fetchStatus: state.fetchStatus,
     searchResults: state.searchResults,
-    preSearchTimeout: state.preSearchTimeout
+    preSearchTimeout: state.preSearchTimeout,
+    selectedOption: state.selectedOption,
+    bandsList: state.bandsList
   }
 )
 
@@ -62,5 +103,7 @@ const mapDispatch = {
   setSearchString: searchBoxSlice.actions.setSearchString,
   setPreSearchTimeout: searchBoxSlice.actions.setPreSearchTimeout,
   fetchCities,
+  changeSelection: searchBoxSlice.actions.changeSelection,
+  fetchBands
 }
 export default connect(mapStateToProps, mapDispatch)(SearchBox);
