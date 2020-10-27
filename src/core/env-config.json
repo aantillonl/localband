@@ -4,6 +4,11 @@
         "api_port": 4001,
         "api_url": "http://localhost:4001"
     },
+    "devWithProxy": {
+        "ui_port": 3001,
+        "api_port": 4001,
+        "api_url": "http://localhost:4001/dbpediaProxy/"
+    },
     "staging": {
         "ui_port": 3002,
         "api_url": "https://ozone-staging.herokuapp.com"

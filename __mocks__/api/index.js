@@ -1,5 +1,7 @@
 const homeApi = require('./home');
+const dbpediaProxyApi = require('./dbpediaProxy');
 
 module.exports = {
-  homeApi
+  homeApi,
+  dbpediaProxyApi
 };

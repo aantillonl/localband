@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import envConfig from './core/env-config.json';
-import qs from 'qs'
 import axios from 'axios'
 
 const environment = process.env.REACT_APP_ENVIRONMENT;
@@ -10,33 +9,13 @@ const fetchCities = createAsyncThunk(
   'fetchCities',
   async (payload, thunkAPI) => {
     const searchString = thunkAPI.getState().searchString
-
     if (searchString.length < 4) return []
     thunkAPI.dispatch(searchBoxSlice.actions.startFetch())
     const response =  await axios.get(
       apiUrl,
-      qs.stringify({
-       "default-graph-uri":'http://dbpedia.org',
-        query:`
-        PREFIX dbpedia: <http://dbpedia.org/ontology/>
-        PREFIX yago: <http://dbpedia.org/class/yago/>
-
-        SELECT DISTINCT ?city, ?name
-        WHERE {
-            ?city ?t ?type;
-                rdfs:label ?name.
-            OPTIONAL {?city dbo:populationTotal ?population }.
-            FILTER (?type IN (dbo:City, yago:City108524735))
-            FILTER (LANG(?name) = "en")
-            FILTER regex(?name, "^${searchString}", "i")
-        }
-        ORDER BY DESC(?population)
-
-         LIMIT 5`,
-        output:'json'
-      })
+      {params: {searchString}}
     )
-    return response.data.data
+    return response.data
   }
 )
 

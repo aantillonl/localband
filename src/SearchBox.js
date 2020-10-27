@@ -40,7 +40,7 @@ function SearchBox({
       suggestions = <ul className="options">
         {searchResults.map((suggestion, index) => {
           return <li className={index === selectedOption ? "selected-option": null } key={index}>
-            {reactStringReplace(suggestion.name, searchString, (match, i)=><span key={i} style={{fontWeight:"bold"}}>{match}</span>)}
+            {reactStringReplace(suggestion.displayName, searchString, (match, i)=><span key={i} style={{fontWeight:"bold"}}>{match}</span>)}
           </li>
         })
         }
