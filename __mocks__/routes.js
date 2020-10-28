@@ -10,7 +10,6 @@ function routes(server) {
   apis.forEach(api => {
     const urlName = api.dependency || api.apiName;
     const apiUrl = restAPIConstant[api.apiName].url;
-    console.log(apiList[`${urlName}Api`]);
     server[api.method](apiUrl, apiList[`${urlName}Api`]);
   });
 

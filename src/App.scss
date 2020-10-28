@@ -28,11 +28,10 @@ pre {
     font-size: 1rem;
   }
 
-  input.with-suggestions {
+  input.has-suggestions {
     border-radius: 10px 10px 0px 0px;
-
   }
-
+  
   ul.options {
     margin-top:0px;
     background-color: white;
@@ -49,8 +48,10 @@ pre {
     li.selected-option {
       background-color: #aaa;
     }
-  }  
+  }
  }
+
+  
 
 .footer {
   background: #20232a;

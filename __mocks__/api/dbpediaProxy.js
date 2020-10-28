@@ -1,9 +1,10 @@
 const axios = require('axios');
 const renderQueryTemplate = require('../../src/common/queryTemplate');
+const mapDBPediaResponse = require("./mapDBPediaResponse");
 
 /* eslint-disable-next-line no-unused-vars */
 module.exports = function(req, res) {
-   axios.get(
+  axios.get(
     'https://dbpedia.org/sparql',
     {
       params: {
@@ -15,8 +16,9 @@ module.exports = function(req, res) {
        }
     }
   )
-  .then(dbres=>dbres.data.results.bindings)
+  .then(mapDBPediaResponse)
+  .then(data => {console.log(data); return data})
   .then(res.json)
-  .catch(console.log);
+  .catch(console.log)
 };
   
