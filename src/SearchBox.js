@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import searchBoxSlice from './searchBoxSlice';
 import fetchCities from './FetchCities';
-import SuggestionsList from './SuggestionList'
-import suggestionsListSlice from './SuggestionsListSlice'
+import SuggestionsList from './SuggestionList';
+import suggestionsListSlice from './SuggestionsListSlice';
 
 function SearchBox({
   searchString,
@@ -13,47 +13,83 @@ function SearchBox({
   preSearchTimeout,
   setPreSearchTimeout,
   fetchCities,
-  clearSuggestions
+  clearSuggestions,
+  startSearch,
+  changeSelection,
 }) {
-  const updateSearchStringCallback = useCallback(()=>{
-    if (preSearchTimeout) clearTimeout(preSearchTimeout)
-    clearSuggestions()
-    if (searchString && searchString.length > 3) {
-      setPreSearchTimeout(setTimeout(fetchCities.bind(null, searchString), 1000))
+  const onKeyDown = e => {
+    // User pressed the enter key
+    if (e.keyCode === 13) {
+      return;
     }
-  }, [searchString, preSearchTimeout, setPreSearchTimeout, fetchCities, clearSuggestions])
+    // User pressed the up arrow, decrement the index
+    else if (e.keyCode === 38) {
+      changeSelection('UP');
+    }
+    // User pressed the down arrow, increment the index
+    else if (e.keyCode === 40) {
+      changeSelection('DOWN');
+    }
+  };
 
-  useEffect(updateSearchStringCallback, [searchString])
-    
+  const updateSearchStringCallback = useCallback(() => {
+    if (preSearchTimeout) clearTimeout(preSearchTimeout);
+    clearSuggestions();
+    if (searchString && searchString.length > 3) {
+      setPreSearchTimeout(
+        setTimeout(() => {
+          startSearch();
+          fetchCities(searchString);
+        }, 1000)
+      );
+    }
+  }, [searchString, preSearchTimeout, setPreSearchTimeout, fetchCities, clearSuggestions]);
+
+  useEffect(updateSearchStringCallback, [searchString]);
+
   return (
     <div className="searchbox">
-      <label htmlFor="search_box">
+      <label id="searchbox-label" htmlFor="search_box">
         Find your local bands:
-      </label>
-      <br></br>
-      <input
+        <input
           id="search_box"
+          htmlFor="searchbox-label"
           type="text"
           autoComplete="off"
           value={searchString}
+          onKeyDown={onKeyDown}
           onChange={event => setSearchString(event.target.value)}
-          className={hasSuggestions?"has-suggestions":""}
+          className={hasSuggestions ? 'has-suggestions' : ''}
         />
-      <SuggestionsList/>
+      </label>
+      <SuggestionsList />
     </div>
   );
 }
 
 SearchBox.propTypes = {
   searchString: PropTypes.string,
-  processSearchBoxOnChange: PropTypes.func
+  hasSuggestions: PropTypes.bool,
+  setSearchString: PropTypes.func.isRequired,
+  preSearchTimeout: PropTypes.number.isRequired,
+  setPreSearchTimeout: PropTypes.func.isRequired,
+  fetchCities: PropTypes.func.isRequired,
+  clearSuggestions: PropTypes.func.isRequired,
+  startSearch: PropTypes.func.isRequired,
+  changeSelection: PropTypes.func.isRequired,
 };
-const mapStateToProps = (state) => ({...state.searchBox})
+
+SearchBox.defaultProps = {
+  searchString: '',
+  hasSuggestions: false,
+};
+
+const mapStateToProps = state => ({ ...state.searchBox });
 
 const mapDispatch = {
-    setPreSearchTimeout: searchBoxSlice.actions.setPreSearchTimeout,
-    setSearchString: searchBoxSlice.actions.setSearchString,
-    fetchCities,
-    clearSuggestions: suggestionsListSlice.actions.clearSuggestions
-}
+  ...searchBoxSlice.actions,
+  clearSuggestions: suggestionsListSlice.actions.clearSuggestions,
+  changeSelection: suggestionsListSlice.actions.changeSelection,
+  fetchCities,
+};
 export default connect(mapStateToProps, mapDispatch)(SearchBox);

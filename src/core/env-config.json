@@ -1,20 +1,23 @@
 {
-    "development": {
-        "ui_port": 3001,
-        "api_port": 4001,
-        "api_url": "http://localhost:4001"
-    },
-    "devWithProxy": {
-        "ui_port": 3001,
-        "api_port": 4001,
-        "api_url": "http://localhost:4001/dbpediaProxy/"
-    },
-    "staging": {
-        "ui_port": 3002,
-        "api_url": "https://ozone-staging.herokuapp.com"
-    },
-    "production": {
-        "ui_port": 3003,
-        "api_url": "https://ozone-production.herokuapp.com"
-    }
+  "development": {
+    "ui_port": 3001,
+    "api_port": 4001,
+    "api_url": "http://localhost:4001"
+  },
+  "devWithProxy": {
+    "ui_port": 3001,
+    "api_port": 4001,
+    "api_url": "http://localhost:4001/dbpediaProxy/"
+  },
+  "staging": {
+    "ui_port": 3002,
+    "api_url": "https://ozone-staging.herokuapp.com"
+  },
+  "production": {
+    "ui_port": 3003,
+    "api_url": "https://ozone-production.herokuapp.com"
+  },
+  "test": {
+    "api_url": "http://localhost:4001"
+  }
 }

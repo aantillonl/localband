@@ -8,5 +8,5 @@ const dbpediaProxy = {
 
 module.exports = {
   home,
-  dbpediaProxy
+  dbpediaProxy,
 };

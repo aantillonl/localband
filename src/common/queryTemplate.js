@@ -1,5 +1,5 @@
 module.exports = function(searchString) {
-    return `
+  return `
     PREFIX dbpedia: <http://dbpedia.org/ontology/>
     PREFIX yago: <http://dbpedia.org/class/yago/>
 
@@ -14,5 +14,5 @@ module.exports = function(searchString) {
     }
     ORDER BY DESC(?population)
 
-     LIMIT 5`
-}
+     LIMIT 5`;
+};
