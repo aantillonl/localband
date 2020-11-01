@@ -43,7 +43,14 @@ function SearchBox({
         }, 1000)
       );
     }
-  }, [searchString, preSearchTimeout, setPreSearchTimeout, fetchCities, clearSuggestions]);
+  }, [
+    searchString,
+    preSearchTimeout,
+    setPreSearchTimeout,
+    fetchCities,
+    clearSuggestions,
+    startSearch,
+  ]);
 
   useEffect(updateSearchStringCallback, [searchString]);
 
@@ -71,7 +78,7 @@ SearchBox.propTypes = {
   searchString: PropTypes.string,
   hasSuggestions: PropTypes.bool,
   setSearchString: PropTypes.func.isRequired,
-  preSearchTimeout: PropTypes.number.isRequired,
+  preSearchTimeout: PropTypes.number,
   setPreSearchTimeout: PropTypes.func.isRequired,
   fetchCities: PropTypes.func.isRequired,
   clearSuggestions: PropTypes.func.isRequired,
@@ -82,6 +89,7 @@ SearchBox.propTypes = {
 SearchBox.defaultProps = {
   searchString: '',
   hasSuggestions: false,
+  preSearchTimeout: null,
 };
 
 const mapStateToProps = state => ({ ...state.searchBox });

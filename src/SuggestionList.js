@@ -11,11 +11,13 @@ function SuggestionList({ suggestions, selectedOption, searchString }) {
           <li
             className={index === selectedOption ? 'selected-option' : null}
             key={suggestion.displayName}>
-            {reactStringReplace(suggestion.displayName, searchString, match => (
-              <span key={suggestion.displayName} style={{ fontWeight: 'bold' }}>
-                {match}
-              </span>
-            ))}
+            <a href={suggestion.uri}>
+              {reactStringReplace(suggestion.displayName, searchString, match => (
+                <span key={suggestion.displayName} style={{ fontWeight: 'bold' }}>
+                  {match}
+                </span>
+              ))}
+            </a>
           </li>
         ))}
       </ul>
