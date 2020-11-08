@@ -24,15 +24,8 @@ const searchBoxSlice = createSlice({
     }),
   },
   extraReducers: {
-    [fetchCities.fulfilled]: (state, action) => ({
-      ...state,
-      fetchStatus: 'FINISHED',
-      hasSuggestions: action.payload.length > 0,
-    }),
-    [fetchCities.rejected]: state => ({
-      ...state,
-      fetchStatus: 'FINISHED',
-    }),
+    [fetchCities.fulfilled]: state => ({ ...state, fetchStatus: 'FINISHED' }),
+    [fetchCities.rejected]: state => ({ ...state, fetchStatus: 'FINISHED' }),
     'suggestionsList/clearSuggestions': state => ({
       ...state,
       hasSuggestions: false,

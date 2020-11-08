@@ -56,19 +56,17 @@ function SearchBox({
 
   return (
     <div className="searchbox">
-      <label id="searchbox-label" htmlFor="search_box">
-        Find your local bands:
-        <input
-          id="search_box"
-          htmlFor="searchbox-label"
-          type="text"
-          autoComplete="off"
-          value={searchString}
-          onKeyDown={onKeyDown}
-          onChange={event => setSearchString(event.target.value)}
-          className={hasSuggestions ? 'has-suggestions' : ''}
-        />
-      </label>
+      <input
+        id="search_box"
+        htmlFor="searchbox-label"
+        type="text"
+        autoComplete="off"
+        value={searchString}
+        onKeyDown={onKeyDown}
+        onChange={event => setSearchString(event.target.value)}
+        className={hasSuggestions ? 'has-suggestions' : ''}
+        placeholder="Search for a city, e.g. New York"
+      />
       <SuggestionsList />
     </div>
   );

@@ -22,10 +22,12 @@ const citiesListSlice = createSlice({
     }),
   },
   extraReducers: {
-    [fetchCities.fulfilled]: (state, action) => ({
-      ...state,
-      suggestions: action.payload,
-    }),
+    [fetchCities.fulfilled]: (state, action) => {
+      return {
+        ...state,
+        suggestions: action.payload,
+      };
+    },
     [fetchCities.rejected]: state => ({ ...state }),
   },
 });
