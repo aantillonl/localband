@@ -5,7 +5,9 @@ module.exports = function(hometownUri) {
         SELECT DISTINCT ?bandName
         WHERE {
             ?band rdf:type dbpedia:Band;
-            rdfs:label ?bandName.
+            foaf:name ?bandName.
             ?band dbpedia:hometown <${hometownUri}> .
-        }`;
+            FILTER langMatches(lang(?bandName),'en')
+        }
+        LIMIT 20`;
 };

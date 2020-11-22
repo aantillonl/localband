@@ -7,7 +7,6 @@ const searchBoxSlice = createSlice({
     searchString: '',
     fetchStatus: 'DEFAULT',
     preSearchTimeout: null,
-    hasSuggestions: false,
   },
   reducers: {
     setSearchString: (state, action) => ({
@@ -28,7 +27,6 @@ const searchBoxSlice = createSlice({
     [fetchCities.rejected]: state => ({ ...state, fetchStatus: 'FINISHED' }),
     'suggestionsList/clearSuggestions': state => ({
       ...state,
-      hasSuggestions: false,
     }),
   },
 });

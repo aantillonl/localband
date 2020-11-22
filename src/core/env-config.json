@@ -2,12 +2,14 @@
   "development": {
     "ui_port": 3001,
     "api_port": 4001,
-    "api_url": "http://localhost:4001"
+    "api_url": "http://localhost:4001",
+    "auth_api": "http://localhost:4001/testapi/token"
   },
   "devWithProxy": {
     "ui_port": 3001,
     "api_port": 4001,
-    "api_url": "http://localhost:4001/dbpediaProxy/"
+    "api_url": "http://localhost:4001/dbpediaProxy/",
+    "auth_api": "http://localhost:4001/api/token"
   },
   "staging": {
     "ui_port": 3002,

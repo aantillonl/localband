@@ -3,7 +3,9 @@ const apiList = require('./api/index');
 
 const apis = [
   { method: 'get', apiName: 'home' },
-  { method: 'get', apiName: 'dbpediaProxy' }
+  { method: 'get', apiName: 'dbpediaProxy' },
+  { method: 'post', apiName: 'testToken' },
+  { method: 'post', apiName: 'spotifyToken' }
 ];
 
 function routes(server) {
@@ -15,6 +17,7 @@ function routes(server) {
 
   /* eslint-disable-next-line no-unused-vars */
   server.use('/*', function(req, res) {
+    console.log('default route');
     res.json({});
   });
 }

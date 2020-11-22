@@ -25,7 +25,7 @@ const responseDelay = process.env.REACT_APP_RESPONSE_DELAY || 1000;
 const message = `Application running in port:  ${PORT} (${environment})`;
 
 /* Middlware for POST calls */
-server.use(jsonServer.bodyParser);
+// server.use(jsonServer.bodyParser);
 
 /* eslint-disable-next-line no-unused-vars */
 server.use(function(req, res, next) {

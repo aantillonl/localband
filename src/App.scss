@@ -36,6 +36,15 @@ pre {
     box-sizing: border-box;
     width: 100%;
     margin-bottom: 5px;
+
+    &.loading {
+      background-color: #ffffff;
+      background-image: url('/images/loading.gif');
+      background-size: 50px;
+      overflow: hidden;
+      background-position: right center;
+      background-repeat: no-repeat;
+    }
   }
 
   ul.options {
@@ -61,14 +70,7 @@ pre {
   }
 }
 
-.footer {
-  background: #20232a;
-  position: fixed;
-  left: 0;
-  width: 100%;
-  padding: 30px;
-  text-align: center;
-  bottom: 0px;
-  color: #aaa;
-  font-size: 12px;
+ul.bands-list {
+  list-style: none;
+  padding-left: 0px;
 }

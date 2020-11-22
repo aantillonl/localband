@@ -8,11 +8,11 @@ import suggestionsListSlice from './SuggestionsListSlice';
 
 function SearchBox({
   searchString,
-  hasSuggestions,
   setSearchString,
   preSearchTimeout,
   setPreSearchTimeout,
   fetchCities,
+  fetchStatus,
   clearSuggestions,
   startSearch,
   changeSelection,
@@ -57,6 +57,7 @@ function SearchBox({
   return (
     <div className="searchbox">
       <input
+        className={fetchStatus === 'PENDING' ? 'loading' : ''}
         id="search_box"
         htmlFor="searchbox-label"
         type="text"
@@ -64,7 +65,6 @@ function SearchBox({
         value={searchString}
         onKeyDown={onKeyDown}
         onChange={event => setSearchString(event.target.value)}
-        className={hasSuggestions ? 'has-suggestions' : ''}
         placeholder="Search for a city, e.g. New York"
       />
       <SuggestionsList />
