@@ -3,14 +3,10 @@ import fetchBandNames from './FetchBandNames';
 
 const bandsListSlice = createSlice({
   name: 'bandsListSlice',
-  initialState: {
-    bandsList: [],
-  },
+  initialState: [],
+
   extraReducers: {
-    [fetchBandNames.fulfilled]: (state, action) => ({
-      ...state,
-      bandsList: action.payload.map(n => ({ name: n })),
-    }),
+    [fetchBandNames.fulfilled]: (state, action) => action.payload,
     [fetchBandNames.rejected]: state => ({ ...state }),
   },
 });

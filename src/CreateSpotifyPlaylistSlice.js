@@ -2,9 +2,12 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const createSpotifyPlaylistSlice = createSlice({
   name: 'createSpotifyPlaylistSlice',
-  initialState: { authData: null },
+  initialState: { playlistName: '' },
   reducers: {
-    setAuthData: (state, action) => ({ ...state, authData: action.payload }),
+    setPlaylistName: (state, action) => ({
+      ...state,
+      playlistName: action.payload,
+    }),
   },
 });
 

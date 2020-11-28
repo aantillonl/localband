@@ -3,13 +3,13 @@ import { combineReducers } from 'redux';
 import searchBoxSlice from './searchBoxSlice';
 import suggestionsListSlice from './SuggestionsListSlice';
 import bandsListSlice from './BandsListSlice';
-import createSpotifyPlaylistSlice from './CreateSpotifyPlaylistSlice';
+import CreateSpotifyPlaylistSlice from './CreateSpotifyPlaylistSlice';
 
 const rootReducer = combineReducers({
   searchBox: searchBoxSlice.reducer,
   suggestionsList: suggestionsListSlice.reducer,
   bandsList: bandsListSlice.reducer,
-  createSpotifyPlaylist: createSpotifyPlaylistSlice.reducer,
+  createSpotifyPlaylist: CreateSpotifyPlaylistSlice.reducer,
 });
 
 const store = configureStore({ reducer: rootReducer });

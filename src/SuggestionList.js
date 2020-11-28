@@ -3,10 +3,18 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import reactStringReplace from 'react-string-replace';
 import FetchBandNames from './FetchBandNames';
+import CreateSpotifyPlaylistSlice from './CreateSpotifyPlaylistSlice';
 
-function SuggestionList({ suggestions, selectedOption, searchString, FetchBandNames }) {
-  function handleClick(hometownUri, e) {
+function SuggestionList({
+  suggestions,
+  selectedOption,
+  searchString,
+  FetchBandNames,
+  setPlaylistName,
+}) {
+  function handleClick(hometownUri, hometownName, e) {
     e.preventDefault();
+    setPlaylistName(`My Playlist From ${hometownName}`);
     FetchBandNames(hometownUri);
   }
 
@@ -20,7 +28,7 @@ function SuggestionList({ suggestions, selectedOption, searchString, FetchBandNa
             <a
               className="suggestion"
               href={suggestion.uri}
-              onClick={handleClick.bind(null, suggestion.uri)}>
+              onClick={handleClick.bind(null, suggestion.uri, suggestion.displayName)}>
               {reactStringReplace(suggestion.displayName, searchString, match => (
                 <span key={suggestion.displayName} style={{ fontWeight: 'bold' }}>
                   {match}
@@ -55,6 +63,7 @@ const mapStateToProps = state => ({
 
 const mapDispatch = {
   FetchBandNames,
+  setPlaylistName: CreateSpotifyPlaylistSlice.actions.setPlaylistName,
 };
 
 export default connect(mapStateToProps, mapDispatch)(SuggestionList);

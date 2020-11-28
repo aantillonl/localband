@@ -74,11 +74,11 @@ function SearchBox({
 
 SearchBox.propTypes = {
   searchString: PropTypes.string,
-  hasSuggestions: PropTypes.bool,
   setSearchString: PropTypes.func.isRequired,
   preSearchTimeout: PropTypes.number,
   setPreSearchTimeout: PropTypes.func.isRequired,
   fetchCities: PropTypes.func.isRequired,
+  fetchStatus: PropTypes.string.isRequired,
   clearSuggestions: PropTypes.func.isRequired,
   startSearch: PropTypes.func.isRequired,
   changeSelection: PropTypes.func.isRequired,
@@ -86,7 +86,6 @@ SearchBox.propTypes = {
 
 SearchBox.defaultProps = {
   searchString: '',
-  hasSuggestions: false,
   preSearchTimeout: null,
 };
 

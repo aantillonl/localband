@@ -18,7 +18,6 @@ module.exports = function(client_req, client_res) {
   };
 
   const proxy = https.request(options, function(res) {
-    console.log(res.statusCode);
     client_res.writeHead(res.statusCode, res.headers);
     res.pipe(client_res, {
       end: true

@@ -14,9 +14,12 @@ const spotifyToken = {
   url: '/api/token/',
 };
 
+const AUTH_SCOPE = 'playlist-modify-private';
+
 module.exports = {
   home,
   dbpediaProxy,
   testToken,
   spotifyToken,
+  AUTH_SCOPE,
 };
