@@ -6,7 +6,7 @@ const searchBoxSlice = createSlice({
   initialState: {
     searchString: '',
     fetchStatus: 'DEFAULT',
-    preSearchTimeout: null,
+    currentRequestId: null,
   },
   reducers: {
     setSearchString: (state, action) => ({
@@ -17,16 +17,18 @@ const searchBoxSlice = createSlice({
       ...state,
       preSearchTimeout: action.payload,
     }),
-    startSearch: state => ({
-      ...state,
-      fetchStatus: 'PENDING',
-    }),
   },
   extraReducers: {
-    [fetchCities.fulfilled]: state => ({ ...state, fetchStatus: 'FINISHED' }),
-    [fetchCities.rejected]: state => ({ ...state, fetchStatus: 'FINISHED' }),
-    'suggestionsList/clearSuggestions': state => ({
+    [fetchCities.pending]: (state, action) => ({
       ...state,
+      currentRequestId: action.meta.requestId,
+      fetchStatus: 'PENDING',
+    }),
+    [fetchCities.fulfilled]: state => ({ ...state, fetchStatus: 'FINISHED' }),
+    [fetchCities.rejected]: (state, action) => ({
+      ...state,
+      fetchStatus:
+        action.meta.requestId === state.currentRequestId ? 'FINISHED' : state.fetchStatus,
     }),
   },
 });
