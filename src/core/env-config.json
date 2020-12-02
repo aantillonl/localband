@@ -21,6 +21,6 @@
     "api_url": "https://ozone-production.herokuapp.com"
   },
   "test": {
-    "api_url": "http://localhost:4001"
+    "api_url": "http://testapi"
   }
 }

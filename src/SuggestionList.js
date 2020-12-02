@@ -5,13 +5,7 @@ import reactStringReplace from 'react-string-replace';
 import FetchBandNames from './FetchBandNames';
 import CreateSpotifyPlaylistSlice from './CreateSpotifyPlaylistSlice';
 
-function SuggestionList({
-  suggestions,
-  selectedOption,
-  searchString,
-  FetchBandNames,
-  setPlaylistName,
-}) {
+function SuggestionList({ suggestions, searchString, FetchBandNames, setPlaylistName }) {
   function handleClick(hometownUri, hometownName, e) {
     e.preventDefault();
     setPlaylistName(`My Playlist From ${hometownName}`);
@@ -21,10 +15,8 @@ function SuggestionList({
   if (suggestions && suggestions.length > 0) {
     return (
       <ul className="options">
-        {suggestions.map((suggestion, index) => (
-          <li
-            className={index === selectedOption ? 'selected-option' : null}
-            key={suggestion.displayName}>
+        {suggestions.map(suggestion => (
+          <li key={suggestion.displayName}>
             <a
               className="suggestion"
               href={suggestion.uri}
@@ -51,8 +43,6 @@ SuggestionList.prototype = {
       displayName: PropTypes.string,
     })
   ),
-  selectedOption: PropTypes.number,
-  changeSelection: PropTypes.func.isRequired,
   searchString: PropTypes.func.isRequired,
 };
 

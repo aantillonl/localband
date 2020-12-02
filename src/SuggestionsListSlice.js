@@ -5,15 +5,14 @@ const citiesListSlice = createSlice({
   name: 'suggestionsList',
   initialState: {
     suggestions: [],
-    selectedOption: -1,
   },
   extraReducers: {
     [fetchCities.pending]: state => ({ ...state, suggestions: [] }),
+    [fetchCities.rejected]: state => ({ ...state, suggestions: [] }),
     [fetchCities.fulfilled]: (state, action) => ({
       ...state,
       suggestions: action.payload,
     }),
-    [fetchCities.rejected]: state => ({ ...state }),
   },
 });
 

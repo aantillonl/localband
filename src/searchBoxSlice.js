@@ -13,10 +13,6 @@ const searchBoxSlice = createSlice({
       ...state,
       searchString: action.payload,
     }),
-    setPreSearchTimeout: (state, action) => ({
-      ...state,
-      preSearchTimeout: action.payload,
-    }),
   },
   extraReducers: {
     [fetchCities.pending]: (state, action) => ({

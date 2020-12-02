@@ -10,7 +10,6 @@ function SearchBox({ searchString, setSearchString, fetchCities, fetchStatus }) 
   useEffect(() => {
     const promise = fetchCities(searchString);
     return () => {
-      // Abort previous search. Doesnt affect if the promise already resolved
       promise.abort();
     };
   }, [fetchCities, searchString]);
