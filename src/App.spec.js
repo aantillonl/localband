@@ -6,9 +6,9 @@ import axios from 'axios';
 import thunk from 'redux-thunk';
 import App from './App';
 import store from './store';
-import SearchBoxSlice from './searchBoxSlice';
+import searchBoxSlice from './searchBoxSlice';
 
-import FetchCitiesThunk from './FetchCities';
+import fetchCitiesThunk from './FetchCities';
 
 jest.mock('axios');
 jest.useFakeTimers();
@@ -28,13 +28,13 @@ describe('App Component', () => {
 
 describe('Action creators', () => {
   it('should create the right setSearchString action', () => {
-    SearchBoxSlice.actions;
+    searchBoxSlice.actions;
     const payload = 'abc';
     const expectedAction = {
       type: 'searchBox/setSearchString',
       payload,
     };
-    expect(SearchBoxSlice.actions.setSearchString(payload)).toEqual(expectedAction);
+    expect(searchBoxSlice.actions.setSearchString(payload)).toEqual(expectedAction);
   });
 });
 
@@ -47,7 +47,7 @@ describe('Async actions', () => {
 
   it('should not start fetch cities if the search string is less or equal to 3', () => {
     const store = mockStore({});
-    return store.dispatch(FetchCitiesThunk('abc')).then(() => {
+    return store.dispatch(fetchCitiesThunk('abc')).then(() => {
       expect(store.getActions()).toEqual([]);
     });
   });
@@ -71,7 +71,7 @@ describe('Async actions', () => {
       expect.objectContaining({ type: 'fetchCities/pending' }),
       expect.objectContaining({ type: 'fetchCities/fulfilled' }),
     ];
-    const promise = store.dispatch(FetchCitiesThunk('London'));
+    const promise = store.dispatch(fetchCitiesThunk('London'));
     jest.runAllTimers();
     return promise.then(() => {
       expect(store.getActions()).toEqual(expectedActions);
@@ -83,7 +83,7 @@ describe('Async actions', () => {
       expect.objectContaining({ type: 'fetchCities/pending' }),
       expect.objectContaining({ type: 'fetchCities/rejected' }),
     ];
-    const promise = store.dispatch(FetchCitiesThunk('London'));
+    const promise = store.dispatch(fetchCitiesThunk('London'));
     promise.abort();
     jest.runAllTimers();
     return promise.then(() => {
@@ -100,7 +100,7 @@ describe('Async actions', () => {
       expect.objectContaining({ type: 'fetchCities/pending' }),
       expect.objectContaining({ type: 'fetchCities/rejected' }),
     ];
-    const promise = store.dispatch(FetchCitiesThunk('London'));
+    const promise = store.dispatch(fetchCitiesThunk('London'));
     jest.runAllTimers();
     return promise.then(() => {
       expect(store.getActions()).toEqual(expectedActions);

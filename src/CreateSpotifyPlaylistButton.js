@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { AUTH_SCOPE } from './common/restApiConstants';
-import CreateSpotifyPlaylistThunk from './CreateSpotifyPlaylistThunk';
+import CreateSpotifyPlaylistThunk, { refreshToken } from './CreateSpotifyPlaylistThunk';
 
 const AUTH_TIMEOUT = 1000 * 60; // 1 MIN
 function _OpenAuthPopUp() {
@@ -36,6 +36,12 @@ async function GetSpotifyAuthToken() {
     if (!localStorage.getItem('access_token')) {
       _OpenAuthPopUp();
       saveEventDataToLocalStorage(await ListenForAuthMessage());
+    }
+    if (localStorage.getItem('expires_in')) {
+      const expiresInDate = Date.parse(localStorage.getItem('expires_in'));
+      if (expiresInDate > Date.now()) {
+        saveEventDataToLocalStorage(await refreshToken(localStorage.getItem('refresh_token')));
+      }
     }
     return localStorage.getItem('access_token');
   } catch (error) {

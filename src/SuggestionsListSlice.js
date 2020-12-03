@@ -1,18 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 import fetchCities from './FetchCities';
+import fetchBandNames from './FetchBandNames';
 
 const citiesListSlice = createSlice({
   name: 'suggestionsList',
-  initialState: {
-    suggestions: [],
-  },
+  initialState: [],
   extraReducers: {
-    [fetchCities.pending]: state => ({ ...state, suggestions: [] }),
-    [fetchCities.rejected]: state => ({ ...state, suggestions: [] }),
-    [fetchCities.fulfilled]: (state, action) => ({
-      ...state,
-      suggestions: action.payload,
-    }),
+    [fetchCities.pending]: () => [],
+    [fetchCities.rejected]: () => [],
+    [fetchCities.fulfilled]: (_, action) => action.payload,
+    [fetchBandNames.fulfilled]: state => ({ ...state, suggestions: [] }),
   },
 });
 
