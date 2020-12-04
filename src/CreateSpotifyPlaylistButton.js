@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { AUTH_SCOPE } from './common/restApiConstants';
+import { authResponseValidator, validateCallback } from './schemaValidation';
 import CreateSpotifyPlaylistThunk, { refreshToken } from './CreateSpotifyPlaylistThunk';
 
 const AUTH_TIMEOUT = 1000 * 60; // 1 MIN
-function _OpenAuthPopUp() {
+function openAuthPopUp() {
   const authParams = {
     client_id: '493fa509a9db44d5867e40a7fdcd58a8',
     response_type: 'code',
@@ -15,37 +16,40 @@ function _OpenAuthPopUp() {
   window.open(`https://accounts.spotify.com/authorize?${new URLSearchParams(authParams)}`);
 }
 
-function saveEventDataToLocalStorage(event) {
-  const data = event.data;
-  if (data.type !== 'spotifyAuthCallback') return;
+function saveAuthDataToLocalStorage(authResponse) {
+  validateCallback(authResponseValidator, authResponse);
 
-  data.access_token && localStorage.setItem('access_token', data.access_token);
-  data.expires_in && localStorage.setItem('expires_in', data.expires_in);
-  data.refresh_toke && localStorage.setItem('refresh_token', data.refresh_token);
+  localStorage.setItem('access_token', authResponse.access_token);
+  localStorage.setItem('refresh_token', authResponse.refresh_token);
+  localStorage.setItem('expiration_date', Date.now() + authResponse.expires_in * 1000);
 }
 
-function ListenForAuthMessage() {
+function ListenForAuthResponseMessage() {
   return new Promise(resolve => {
-    window.addEventListener('message', resolve);
+    window.addEventListener('message', event => resolve(event.data));
     setTimeout(() => window.removeEventListener('message', resolve), AUTH_TIMEOUT);
   });
 }
 
-async function GetSpotifyAuthToken() {
-  try {
-    if (!localStorage.getItem('access_token')) {
-      _OpenAuthPopUp();
-      saveEventDataToLocalStorage(await ListenForAuthMessage());
-    }
-    if (localStorage.getItem('expires_in')) {
-      const expiresInDate = Date.parse(localStorage.getItem('expires_in'));
-      if (expiresInDate > Date.now()) {
-        saveEventDataToLocalStorage(await refreshToken(localStorage.getItem('refresh_token')));
-      }
-    }
-    return localStorage.getItem('access_token');
-  } catch (error) {
-    throw new Error("Couldn't get access_token");
+function GetSpotifyAuthToken() {
+  const storage_access_token = localStorage.getItem('access_token');
+  const storage_expiration_date = localStorage.getItem('expiration_date');
+  const storage_refresh_token = localStorage.getItem('refresh_token');
+  if (storage_access_token && parseInt(storage_expiration_date) > Date.now())
+    return Promise.resolve(storage_access_token);
+
+  const saveAuthAndReturnToken = res => {
+    saveAuthDataToLocalStorage(res);
+    return res.access_token;
+  };
+
+  if (!storage_access_token) {
+    openAuthPopUp();
+    return ListenForAuthResponseMessage().then(saveAuthAndReturnToken);
+  }
+
+  if (storage_access_token && storage_refresh_token && storage_expiration_date < Date.now()) {
+    return refreshToken(storage_refresh_token).then(saveAuthAndReturnToken);
   }
 }
 
@@ -67,3 +71,5 @@ CreateSpotifyPlaylistButton.propTypes = {
 export default connect(mapStateToProps, { CreateSpotifyPlaylistThunk })(
   CreateSpotifyPlaylistButton
 );
+
+export { GetSpotifyAuthToken, openAuthPopUp };

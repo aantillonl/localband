@@ -7,8 +7,8 @@ import thunk from 'redux-thunk';
 import App from './App';
 import store from './store';
 import searchBoxSlice from './searchBoxSlice';
-
 import fetchCitiesThunk from './FetchCities';
+import { GetSpotifyAuthToken } from './CreateSpotifyPlaylistButton';
 
 jest.mock('axios');
 jest.useFakeTimers();
@@ -38,7 +38,7 @@ describe('Action creators', () => {
   });
 });
 
-describe('Async actions', () => {
+describe('Async dbpedia actions', () => {
   const mockStore = configureMockStore([thunk]);
 
   afterEach(() => {
@@ -77,6 +77,7 @@ describe('Async actions', () => {
       expect(store.getActions()).toEqual(expectedActions);
     });
   });
+
   it('should not request data from dbpedia if the request is aborted', () => {
     const store = mockStore({});
     const expectedActions = [
@@ -104,6 +105,58 @@ describe('Async actions', () => {
     jest.runAllTimers();
     return promise.then(() => {
       expect(store.getActions()).toEqual(expectedActions);
+    });
+  });
+});
+
+describe('Spotify Auth', () => {
+  afterEach(() => {
+    localStorage.clear();
+    axios.get.mockReset();
+    axios.post.mockReset();
+  });
+
+  it('should not get the auth token from local storage if available and valid', () => {
+    localStorage.setItem('access_token', 'test_token_from_storage');
+    const inOneHour = Date.now() + 3600 * 1000;
+    localStorage.setItem('expiration_date', inOneHour);
+    return GetSpotifyAuthToken().then(auth_token => {
+      expect(auth_token).toEqual('test_token_from_storage');
+    });
+  });
+
+  it('should start auth flow and listen for auth messages', () => {
+    global.open = jest.fn();
+    const tokenPromise = GetSpotifyAuthToken();
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data: {
+          access_token: 'test_token_from_api',
+          refresh_token: 'test_refresh_token_from_storage',
+          expires_in: 0,
+        },
+        origin: '*',
+      })
+    );
+
+    return tokenPromise.then(access_token => {
+      expect(access_token).toEqual('test_token_from_api');
+    });
+  });
+
+  it('should exchange code for auth token', () => {
+    localStorage.setItem('access_token', 'expired_token');
+    localStorage.setItem('refresh_token', 'refresh_token');
+    const oneHourAgo = Date.now() - 3600 * 1000;
+    localStorage.setItem('expiration_date', oneHourAgo);
+    const resp = {
+      access_token: 'test_refreshed_token_from_api',
+      refresh_token: 'test_refresh_token_from_api',
+      expires_in: 0,
+    };
+    axios.post.mockResolvedValue(resp);
+    return GetSpotifyAuthToken().then(auth_token => {
+      expect(auth_token).toEqual('test_refreshed_token_from_api');
     });
   });
 });

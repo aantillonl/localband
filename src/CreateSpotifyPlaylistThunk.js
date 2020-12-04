@@ -1,7 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import envConfig from './core/env-config.json';
-import { authResponseValidator, validateCallback } from './schemaValidation';
 
 const environment = process.env.REACT_APP_ENVIRONMENT;
 const spotifyApiUrl = envConfig[environment]['spotify_api_url'];
@@ -93,13 +92,11 @@ export default createAsyncThunk('createSpotifyPlaylist', async (access_token, th
 const refreshToken = async refresh_token => {
   const apiUrl = envConfig[environment]['auth_api'];
 
-  return axios
-    .post(apiUrl, {
-      grant_type: 'authorization_code',
-      code: refresh_token,
-      redirect_uri: 'http://localhost:3000/callback/',
-    })
-    .then(validateCallback.bind(null, authResponseValidator));
+  return axios.post(apiUrl, {
+    grant_type: 'authorization_code',
+    code: refresh_token,
+    redirect_uri: 'http://localhost:3000/callback/',
+  });
 };
 
-export { refreshToken };
+export { refreshToken, bandSongGenerator, getSpotifyUserId, createPlaylist, addSongsToPlaylist };

@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import axios from 'axios';
-import { authResponseValidator, validateCallback } from './schemaValidation';
 import envConfig from './core/env-config.json';
 
 const environment = process.env.REACT_APP_ENVIRONMENT;
@@ -19,9 +18,8 @@ function AuthCallback() {
         },
         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
       )
-      .then(validateCallback.bind(null, authResponseValidator))
       .then(res => {
-        window.opener.postMessage({ ...res, type: 'spotifyAuthCallback' }, window.location.origin);
+        window.opener.postMessage(res, window.location.origin);
         window.close();
       });
   }, []);
