@@ -2,11 +2,18 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import envConfig from './core/env-config.json';
 import bandsQueryTemplate from './common/bandsQueryTemplate';
+import searchBoxSlice from './searchBoxSlice';
 
 const environment = process.env.REACT_APP_ENVIRONMENT;
 const apiUrl = envConfig[environment]['api_url'];
 
-export default createAsyncThunk('fetchBandNames', async ({ uri }) => {
+export default createAsyncThunk('fetchBandNames', async ({ uri, displayName }, { dispatch }) => {
+  dispatch(
+    searchBoxSlice.actions.setSearchString({
+      searchString: displayName,
+      updateTextOnly: true,
+    })
+  );
   return axios
     .get(apiUrl, {
       params: {

@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { ValidationError } from 'ajv';
 import { AUTH_SCOPE } from './common/restApiConstants';
-import { authResponseValidator, validateCallback } from './schemaValidation';
+import { authResponseValidator } from './schemaValidation';
 import CreateSpotifyPlaylistThunk, { refreshToken } from './CreateSpotifyPlaylistThunk';
 
 const AUTH_TIMEOUT = 1000 * 60; // 1 MIN
@@ -16,17 +17,17 @@ function openAuthPopUp() {
   window.open(`https://accounts.spotify.com/authorize?${new URLSearchParams(authParams)}`);
 }
 
-function saveAuthDataToLocalStorage(authResponse) {
-  validateCallback(authResponseValidator, authResponse);
+function saveAuthDataToLocalStorage(authData) {
+  if (!authResponseValidator(authData)) throw new ValidationError();
 
-  localStorage.setItem('access_token', authResponse.access_token);
-  localStorage.setItem('refresh_token', authResponse.refresh_token);
-  localStorage.setItem('expiration_date', Date.now() + authResponse.expires_in * 1000);
+  localStorage.setItem('access_token', authData.access_token);
+  localStorage.setItem('refresh_token', authData.refresh_token);
+  localStorage.setItem('expiration_date', Date.now() + authData.expires_in * 1000);
 }
 
 function ListenForAuthResponseMessage() {
   return new Promise(resolve => {
-    window.addEventListener('message', event => resolve(event.data));
+    window.addEventListener('message', resolve);
     setTimeout(() => window.removeEventListener('message', resolve), AUTH_TIMEOUT);
   });
 }
@@ -38,9 +39,9 @@ function GetSpotifyAuthToken() {
   if (storage_access_token && parseInt(storage_expiration_date) > Date.now())
     return Promise.resolve(storage_access_token);
 
-  const saveAuthAndReturnToken = res => {
-    saveAuthDataToLocalStorage(res);
-    return res.access_token;
+  const saveAuthAndReturnToken = ({ data }) => {
+    saveAuthDataToLocalStorage(data);
+    return data.access_token;
   };
 
   if (!storage_access_token) {

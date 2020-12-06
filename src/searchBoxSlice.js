@@ -7,11 +7,13 @@ const searchBoxSlice = createSlice({
     searchString: '',
     fetchStatus: 'DEFAULT',
     currentRequestId: null,
+    updateTextOnly: false,
   },
   reducers: {
     setSearchString: (state, action) => ({
       ...state,
-      searchString: action.payload,
+      searchString: action.payload.searchString,
+      updateTextOnly: action.payload.updateTextOnly,
     }),
   },
   extraReducers: {

@@ -21,6 +21,7 @@
     "api_url": "https://ozone-production.herokuapp.com"
   },
   "test": {
-    "api_url": "http://testapi"
+    "api_url": "http://testapi",
+    "spotify_api_url": "http://testapi"
   }
 }

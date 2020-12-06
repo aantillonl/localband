@@ -6,13 +6,13 @@ import fetchCities from './FetchCities';
 import SuggestionsList from './SuggestionList';
 import suggestionsListSlice from './SuggestionsListSlice';
 
-function SearchBox({ searchString, setSearchString, fetchCities, fetchStatus }) {
+function SearchBox({ searchString, setSearchString, updateTextOnly, fetchCities, fetchStatus }) {
   useEffect(() => {
-    const promise = fetchCities(searchString);
+    const promise = fetchCities({ searchString, updateTextOnly });
     return () => {
       promise.abort();
     };
-  }, [fetchCities, searchString]);
+  }, [searchString, updateTextOnly, fetchCities]);
 
   return (
     <div className="searchbox">
@@ -23,7 +23,12 @@ function SearchBox({ searchString, setSearchString, fetchCities, fetchStatus }) 
         type="text"
         autoComplete="off"
         value={searchString}
-        onChange={event => setSearchString(event.target.value)}
+        onChange={event =>
+          setSearchString({
+            searchString: event.target.value,
+            updateTextOnly: false,
+          })
+        }
         placeholder="Search for a city, e.g. New York"
       />
       <SuggestionsList />
@@ -34,6 +39,7 @@ function SearchBox({ searchString, setSearchString, fetchCities, fetchStatus }) 
 SearchBox.propTypes = {
   searchString: PropTypes.string,
   setSearchString: PropTypes.func.isRequired,
+  updateTextOnly: PropTypes.bool.isRequired,
   fetchCities: PropTypes.func.isRequired,
   fetchStatus: PropTypes.string.isRequired,
 };

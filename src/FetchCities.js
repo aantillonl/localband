@@ -19,8 +19,8 @@ function queryDbPedia(apiUrl, searchString) {
       },
     })
     .then(validateCallback.bind(null, dbpediaResponseValidator))
-    .then(res =>
-      res.data.results.bindings.map(b => ({
+    .then(data =>
+      data.results.bindings.map(b => ({
         uri: b.city.value,
         displayName: b.name.value,
       }))
@@ -29,14 +29,14 @@ function queryDbPedia(apiUrl, searchString) {
 
 export default createAsyncThunk(
   'fetchCities',
-  async (searchString, { signal }) => {
+  async ({ searchString }, { signal }) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     if (signal.aborted) throw new Error();
     return queryDbPedia(apiUrl, searchString);
   },
   {
-    condition: searchString => {
-      if (searchString && searchString.length > 3) {
+    condition: ({ searchString, updateTextOnly }) => {
+      if (searchString && searchString.length > 3 && !updateTextOnly) {
         return true;
       }
       return false;

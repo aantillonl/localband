@@ -4,11 +4,18 @@ import { Provider } from 'react-redux';
 import configureMockStore from 'redux-mock-store';
 import axios from 'axios';
 import thunk from 'redux-thunk';
+import { ValidationError } from 'ajv';
 import App from './App';
 import store from './store';
 import searchBoxSlice from './searchBoxSlice';
 import fetchCitiesThunk from './FetchCities';
 import { GetSpotifyAuthToken } from './CreateSpotifyPlaylistButton';
+import {
+  getArtistSpotifyId,
+  getArtistTopTrackUri,
+  createPlaylist,
+  addSongsToPlaylist,
+} from './CreateSpotifyPlaylistThunk';
 
 jest.mock('axios');
 jest.useFakeTimers();
@@ -29,7 +36,7 @@ describe('App Component', () => {
 describe('Action creators', () => {
   it('should create the right setSearchString action', () => {
     searchBoxSlice.actions;
-    const payload = 'abc';
+    const payload = { searchString: 'abc', triggerSearch: true };
     const expectedAction = {
       type: 'searchBox/setSearchString',
       payload,
@@ -71,7 +78,7 @@ describe('Async dbpedia actions', () => {
       expect.objectContaining({ type: 'fetchCities/pending' }),
       expect.objectContaining({ type: 'fetchCities/fulfilled' }),
     ];
-    const promise = store.dispatch(fetchCitiesThunk('London'));
+    const promise = store.dispatch(fetchCitiesThunk({ searchString: 'London' }));
     jest.runAllTimers();
     return promise.then(() => {
       expect(store.getActions()).toEqual(expectedActions);
@@ -84,7 +91,7 @@ describe('Async dbpedia actions', () => {
       expect.objectContaining({ type: 'fetchCities/pending' }),
       expect.objectContaining({ type: 'fetchCities/rejected' }),
     ];
-    const promise = store.dispatch(fetchCitiesThunk('London'));
+    const promise = store.dispatch(fetchCitiesThunk({ searchString: 'London' }));
     promise.abort();
     jest.runAllTimers();
     return promise.then(() => {
@@ -101,7 +108,7 @@ describe('Async dbpedia actions', () => {
       expect.objectContaining({ type: 'fetchCities/pending' }),
       expect.objectContaining({ type: 'fetchCities/rejected' }),
     ];
-    const promise = store.dispatch(fetchCitiesThunk('London'));
+    const promise = store.dispatch(fetchCitiesThunk({ searchString: 'London' }));
     jest.runAllTimers();
     return promise.then(() => {
       expect(store.getActions()).toEqual(expectedActions);
@@ -150,13 +157,67 @@ describe('Spotify Auth', () => {
     const oneHourAgo = Date.now() - 3600 * 1000;
     localStorage.setItem('expiration_date', oneHourAgo);
     const resp = {
-      access_token: 'test_refreshed_token_from_api',
-      refresh_token: 'test_refresh_token_from_api',
-      expires_in: 0,
+      data: {
+        access_token: 'test_refreshed_token_from_api',
+        refresh_token: 'test_refresh_token_from_api',
+        expires_in: 0,
+      },
     };
     axios.post.mockResolvedValue(resp);
     return GetSpotifyAuthToken().then(auth_token => {
       expect(auth_token).toEqual('test_refreshed_token_from_api');
     });
+  });
+});
+
+describe('Create Playlist', () => {
+  afterEach(() => {
+    axios.get.mockReset();
+    axios.post.mockReset();
+  });
+  it('should getArtistSpotifyId', () => {
+    const resp = {
+      data: {
+        artists: {
+          items: [{ id: '08td7MxkoHQkXnWAYD8d6Q' }],
+        },
+      },
+    };
+    axios.get.mockResolvedValue(resp);
+    return getArtistSpotifyId('test_token', 'Metallica').then(id => {
+      expect(id).toEqual('08td7MxkoHQkXnWAYD8d6Q');
+    });
+  });
+  it('should fail if getArtistSpotifyId response  is invalid', () => {
+    axios.get.mockResolvedValue({ data: 'invalid response' });
+    return getArtistSpotifyId('test_token', 'Metallica').catch(err => {
+      expect(err).toBeInstanceOf(ValidationError);
+    });
+  });
+
+  it('should getArtistTopTrackUri', () => {
+    const resp = { data: { tracks: [{ uri: '08td7MxkoHQkXnWAYD8d6Q' }] } };
+    axios.get.mockResolvedValue(resp);
+    return getArtistTopTrackUri('test_token', 'test_artist_uri').then(uri => {
+      expect(uri).toEqual('08td7MxkoHQkXnWAYD8d6Q');
+    });
+  });
+
+  it('should create a playlist', () => {
+    const resp = { data: { id: 'test_playlist_id' } };
+    axios.post.mockResolvedValue(resp);
+    return createPlaylist('test_token').then(playlistId =>
+      expect(playlistId).toEqual('test_playlist_id')
+    );
+  });
+
+  it('should add songs to a playlist', () => {
+    const resp = { status: 201 };
+    axios.post.mockResolvedValue(resp);
+    return addSongsToPlaylist('test_token', 'test_playlist', [
+      'song_uri_1',
+      'song_uri_2',
+      'song_uri_3',
+    ]);
   });
 });

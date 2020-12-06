@@ -1,11 +1,19 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import Bottleneck from 'bottleneck';
 import envConfig from './core/env-config.json';
+import {
+  validateCallback,
+  spotifySearchResponseValidator,
+  spotifyArtistTopTrackValidator,
+  spotifyCreatePlaylistValidator,
+} from './schemaValidation';
 
 const environment = process.env.REACT_APP_ENVIRONMENT;
 const spotifyApiUrl = envConfig[environment]['spotify_api_url'];
+const limiter = new Bottleneck({ maxConcurrent: 1, minTime: 333 });
 
-function getBandSpotifyId(access_token, bandName) {
+function getArtistSpotifyId(access_token, bandName) {
   return axios
     .get(`${spotifyApiUrl}/search`, {
       params: {
@@ -15,28 +23,18 @@ function getBandSpotifyId(access_token, bandName) {
       },
       headers: { Authorization: `Bearer ${access_token}` },
     })
-    .then(res => res.data.artists.items[0].id);
+    .then(validateCallback.bind(null, spotifySearchResponseValidator))
+    .then(data => data.artists.items[0].id);
 }
 
-function getBandTopTrackUri(access_token, bandSpotifyId) {
+function getArtistTopTrackUri(access_token, bandSpotifyId) {
   return axios
     .get(`${spotifyApiUrl}/artists/${bandSpotifyId}/top-tracks?country=from_token`, {
       headers: { Authorization: `Bearer ${access_token}` },
     })
-    .then(res => res.data.tracks[0].uri);
+    .then(validateCallback.bind(null, spotifyArtistTopTrackValidator))
+    .then(data => data.tracks[0].uri);
 }
-
-const bandSongGenerator = (access_token, bandsList) => {
-  return {
-    async *[Symbol.asyncIterator]() {
-      for (const band in bandsList) {
-        yield await getBandSpotifyId(access_token, band).then(
-          getBandTopTrackUri.bind(null, access_token)
-        );
-      }
-    },
-  };
-};
 
 function getSpotifyUserId(access_token) {
   return axios
@@ -62,28 +60,42 @@ function createPlaylist(access_token, spotifyUserId, playlistName) {
         },
       }
     )
-    .then(res => res.data.id);
+    .then(validateCallback.bind(null, spotifyCreatePlaylistValidator))
+    .then(data => {
+      return data.id;
+    });
 }
 
 function addSongsToPlaylist(access_token, playlistId, songUriList) {
-  return axios.post(
-    `${spotifyApiUrl}/playlists/${playlistId}/tracks`,
-    {
-      uris: songUriList,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
+  return axios
+    .post(
+      `${spotifyApiUrl}/playlists/${playlistId}/tracks`,
+      {
+        uris: songUriList,
       },
-    }
-  );
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+    .then(res => {
+      if (res.status !== 201) throw new Error('could not add songs to playlist');
+    });
 }
 
 export default createAsyncThunk('createSpotifyPlaylist', async (access_token, thunkApi) => {
-  const { bandsList, createSpotifyPlaylist } = thunkApi.getState();
-  const playlistName = createSpotifyPlaylist.playlistName;
-  const songUriList = Array.from(bandSongGenerator(access_token, bandsList));
+  const { bandsList, playlistName } = thunkApi.getState();
+  const wrappedGetArtistSpotifyId = limiter.wrap(getArtistSpotifyId.bind(null, access_token));
+  const wrappedGetArtistTopTrackUri = limiter.wrap(getArtistTopTrackUri.bind(null, access_token));
+
+  const artistUris = (
+    await Promise.all(bandsList.map(a => wrappedGetArtistSpotifyId(a).catch(() => null)))
+  ).filter(Boolean);
+  const songUriList = (
+    await Promise.all(artistUris.map(a => wrappedGetArtistTopTrackUri(a).catch(() => null)))
+  ).filter(Boolean);
   const spotifyUserId = await getSpotifyUserId(access_token);
   const newPlaylistId = await createPlaylist(access_token, spotifyUserId, playlistName);
   return addSongsToPlaylist(access_token, newPlaylistId, songUriList);
@@ -99,4 +111,11 @@ const refreshToken = async refresh_token => {
   });
 };
 
-export { refreshToken, bandSongGenerator, getSpotifyUserId, createPlaylist, addSongsToPlaylist };
+export {
+  refreshToken,
+  getArtistSpotifyId,
+  getSpotifyUserId,
+  createPlaylist,
+  addSongsToPlaylist,
+  getArtistTopTrackUri,
+};
