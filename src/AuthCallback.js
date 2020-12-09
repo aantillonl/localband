@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import axios from 'axios';
+import qs from 'querystring';
 import envConfig from './core/env-config.json';
 
 const environment = process.env.REACT_APP_ENVIRONMENT;
@@ -11,11 +12,11 @@ function AuthCallback() {
     axios
       .post(
         apiUrl,
-        {
+        qs.stringify({
           grant_type: 'authorization_code',
           code,
           redirect_uri: 'http://localhost:3000/callback/',
-        },
+        }),
         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
       )
       .then(res => {

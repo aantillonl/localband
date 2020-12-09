@@ -252,4 +252,26 @@ describe('Create Playlist', () => {
       .dispatch(createSpotifyPlaylist('test_access_token'))
       .then(res => expect(res.payload).toEqual({ status: 201 }));
   });
+
+  it('should handle no results from Spotify Search API', () => {
+    const store = mockStore({
+      bandsList: ['band_that_doesnt_exist', 'metallica'],
+      searchBox: { searchString: 'test_playlist' },
+    });
+    axios.get
+      .mockResolvedValueOnce({ data: { artists: { items: [] } } }) // First artist not found
+      .mockResolvedValueOnce({
+        data: { artists: { items: [{ id: 'metallica_id' }] } },
+      }) // 2nd artist found
+      .mockResolvedValueOnce({ data: { tracks: [{ uri: 'track_uri' }] } }) // 2nd artist top track
+      .mockResolvedValueOnce({ data: { id: 'user_id' } }); // User id
+
+    axios.post
+      .mockResolvedValueOnce({ data: { id: 'playlist_id' } }) // Create playlist
+      .mockResolvedValueOnce({ status: 201 }); // Add songs to playlist
+
+    return store.dispatch(createSpotifyPlaylist('test_access_token')).then(res => {
+      expect(res.payload).toEqual({ status: 201 });
+    });
+  });
 });

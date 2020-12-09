@@ -24,7 +24,7 @@ function getArtistSpotifyId(access_token, bandName) {
       headers: { Authorization: `Bearer ${access_token}` },
     })
     .then(validateCallback.bind(null, spotifySearchResponseValidator))
-    .then(data => data.artists.items[0].id);
+    .then(data => (data.artists.items.length > 0 ? data.artists.items[0].id : null));
 }
 
 function getArtistTopTrackUri(access_token, bandSpotifyId) {
@@ -33,7 +33,7 @@ function getArtistTopTrackUri(access_token, bandSpotifyId) {
       headers: { Authorization: `Bearer ${access_token}` },
     })
     .then(validateCallback.bind(null, spotifyArtistTopTrackValidator))
-    .then(data => data.tracks[0].uri);
+    .then(data => (data.tracks.length > 0 ? data.tracks[0].uri : null));
 }
 
 function getSpotifyUserId(access_token) {
@@ -86,6 +86,12 @@ function addSongsToPlaylist(access_token, playlistId, songUriList) {
     });
 }
 
+const filterAndValidateCallback = arr => {
+  const filtered = arr.filter(Boolean);
+  if (filtered.length > 0) return filtered;
+  throw new Error('No valid items to create playlist');
+};
+
 export default createAsyncThunk('createSpotifyPlaylist', async (access_token, thunkApi) => {
   const {
     bandsList,
@@ -94,10 +100,14 @@ export default createAsyncThunk('createSpotifyPlaylist', async (access_token, th
   const wrappedGetArtistSpotifyId = limiter.wrap(getArtistSpotifyId.bind(null, access_token));
   const wrappedGetArtistTopTrackUri = limiter.wrap(getArtistTopTrackUri.bind(null, access_token));
 
-  const artistUris = (await Promise.all(bandsList.map(wrappedGetArtistSpotifyId))).filter(Boolean);
-  const songUriList = (await Promise.all(artistUris.map(wrappedGetArtistTopTrackUri))).filter(
-    Boolean
+  const artistUris = await Promise.all(bandsList.map(wrappedGetArtistSpotifyId)).then(
+    filterAndValidateCallback
   );
+
+  const songUriList = await Promise.all(artistUris.map(wrappedGetArtistTopTrackUri)).then(
+    filterAndValidateCallback
+  );
+
   const spotifyUserId = await getSpotifyUserId(access_token);
   const newPlaylistId = await createPlaylist(access_token, spotifyUserId, playlistName);
   return addSongsToPlaylist(access_token, newPlaylistId, songUriList);

@@ -63,6 +63,7 @@ const spotifySearchResponseSchema = {
       properties: {
         items: {
           type: 'array',
+          minItems: 0,
           item: {
             type: 'object',
             additionalProperties: true,
