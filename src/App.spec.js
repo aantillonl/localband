@@ -10,7 +10,7 @@ import store from './store';
 import searchBoxSlice from './searchBoxSlice';
 import fetchCitiesThunk from './FetchCities';
 import { GetSpotifyAuthToken } from './CreateSpotifyPlaylistButton';
-import {
+import createSpotifyPlaylist, {
   getArtistSpotifyId,
   getArtistTopTrackUri,
   createPlaylist,
@@ -19,6 +19,8 @@ import {
 
 jest.mock('axios');
 jest.useFakeTimers();
+
+const mockStore = configureMockStore([thunk]);
 
 describe('App Component', () => {
   it('renders without crashing', () => {
@@ -46,8 +48,6 @@ describe('Action creators', () => {
 });
 
 describe('Async dbpedia actions', () => {
-  const mockStore = configureMockStore([thunk]);
-
   afterEach(() => {
     axios.get.mockReset();
   });
@@ -188,6 +188,7 @@ describe('Create Playlist', () => {
       expect(id).toEqual('08td7MxkoHQkXnWAYD8d6Q');
     });
   });
+
   it('should fail if getArtistSpotifyId response  is invalid', () => {
     axios.get.mockResolvedValue({ data: 'invalid response' });
     return getArtistSpotifyId('test_token', 'Metallica').catch(err => {
@@ -219,5 +220,36 @@ describe('Create Playlist', () => {
       'song_uri_2',
       'song_uri_3',
     ]);
+  });
+
+  it('should create a playlist end to end', () => {
+    const spotifyApiMock = jest.fn(url => {
+      if (url.match(/\/search$/)) {
+        return Promise.resolve({
+          data: { artists: { items: [{ id: 'test_artist_id' }] } },
+        });
+      }
+      if (url.match(/\/top-tracks\?/)) {
+        return Promise.resolve({ data: { tracks: [{ uri: 'track_uri' }] } });
+      }
+      if (url.match(/\/me$/)) {
+        return Promise.resolve({ data: { id: 'user_id' } });
+      }
+      if (url.match(/\/playlists$/)) {
+        return Promise.resolve({ data: { id: 'playlist_id' } });
+      }
+      if (url.match(/\/tracks$/)) {
+        return Promise.resolve({ status: 201 });
+      }
+    });
+    axios.get.mockImplementation(spotifyApiMock);
+    axios.post.mockImplementation(spotifyApiMock);
+    const store = mockStore({
+      bandsList: ['test_band'],
+      searchBox: { searchString: 'test_playlist' },
+    });
+    return store
+      .dispatch(createSpotifyPlaylist('test_access_token'))
+      .then(res => expect(res.payload).toEqual({ status: 201 }));
   });
 });

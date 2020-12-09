@@ -82,20 +82,22 @@ function addSongsToPlaylist(access_token, playlistId, songUriList) {
     )
     .then(res => {
       if (res.status !== 201) throw new Error('could not add songs to playlist');
+      return res;
     });
 }
 
 export default createAsyncThunk('createSpotifyPlaylist', async (access_token, thunkApi) => {
-  const { bandsList, playlistName } = thunkApi.getState();
+  const {
+    bandsList,
+    searchBox: { searchString: playlistName },
+  } = thunkApi.getState();
   const wrappedGetArtistSpotifyId = limiter.wrap(getArtistSpotifyId.bind(null, access_token));
   const wrappedGetArtistTopTrackUri = limiter.wrap(getArtistTopTrackUri.bind(null, access_token));
 
-  const artistUris = (
-    await Promise.all(bandsList.map(a => wrappedGetArtistSpotifyId(a).catch(() => null)))
-  ).filter(Boolean);
-  const songUriList = (
-    await Promise.all(artistUris.map(a => wrappedGetArtistTopTrackUri(a).catch(() => null)))
-  ).filter(Boolean);
+  const artistUris = (await Promise.all(bandsList.map(wrappedGetArtistSpotifyId))).filter(Boolean);
+  const songUriList = (await Promise.all(artistUris.map(wrappedGetArtistTopTrackUri))).filter(
+    Boolean
+  );
   const spotifyUserId = await getSpotifyUserId(access_token);
   const newPlaylistId = await createPlaylist(access_token, spotifyUserId, playlistName);
   return addSongsToPlaylist(access_token, newPlaylistId, songUriList);
