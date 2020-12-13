@@ -132,19 +132,17 @@ describe('Spotify Auth', () => {
     });
   });
 
-  it('should start auth flow and listen for auth messages', () => {
+  it('should start auth flow and listen for auth code messages', () => {
     global.open = jest.fn();
+    axios.post.mockResolvedValue({
+      data: {
+        access_token: 'test_token_from_api',
+        refresh_token: 'test_refresh_token_from_storage',
+        expires_in: 0,
+      },
+    });
     const tokenPromise = GetSpotifyAuthToken();
-    window.dispatchEvent(
-      new MessageEvent('message', {
-        data: {
-          access_token: 'test_token_from_api',
-          refresh_token: 'test_refresh_token_from_storage',
-          expires_in: 0,
-        },
-        origin: '*',
-      })
-    );
+    window.dispatchEvent(new MessageEvent('message', { data: { code: 'test_code' }, origin: '*' }));
 
     return tokenPromise.then(access_token => {
       expect(access_token).toEqual('test_token_from_api');

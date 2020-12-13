@@ -113,18 +113,17 @@ export default createAsyncThunk('createSpotifyPlaylist', async (access_token, th
   return addSongsToPlaylist(access_token, newPlaylistId, songUriList);
 });
 
-const refreshToken = async refresh_token => {
+const getSpotifyAccessToken = async code => {
   const apiUrl = envConfig[environment]['auth_api'];
-
   return axios.post(apiUrl, {
     grant_type: 'authorization_code',
-    code: refresh_token,
+    code,
     redirect_uri: 'http://localhost:3000/callback/',
   });
 };
 
 export {
-  refreshToken,
+  getSpotifyAccessToken,
   getArtistSpotifyId,
   getSpotifyUserId,
   createPlaylist,

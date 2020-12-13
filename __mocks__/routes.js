@@ -2,7 +2,7 @@ const restAPIConstant = require('../src/common/restApiConstants');
 const apiList = require('./api/index');
 
 const apis = [
-  { method: 'get', apiName: 'home' },
+  { method: 'get', apiName: 'dbpediaMock' },
   { method: 'get', apiName: 'dbpediaProxy' },
   { method: 'post', apiName: 'testToken' },
   { method: 'post', apiName: 'spotifyToken' }

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { ValidationError } from 'ajv';
 import { AUTH_SCOPE } from './common/restApiConstants';
 import { authResponseValidator } from './schemaValidation';
-import CreateSpotifyPlaylistThunk, { refreshToken } from './CreateSpotifyPlaylistThunk';
+import CreateSpotifyPlaylistThunk, { getSpotifyAccessToken } from './CreateSpotifyPlaylistThunk';
 
 const AUTH_TIMEOUT = 1000 * 60; // 1 MIN
 function openAuthPopUp() {
@@ -27,7 +27,7 @@ function saveAuthDataToLocalStorage(authData) {
 
 function ListenForAuthResponseMessage() {
   return new Promise(resolve => {
-    window.addEventListener('message', resolve);
+    window.addEventListener('message', ({ data }) => resolve(data));
     setTimeout(() => window.removeEventListener('message', resolve), AUTH_TIMEOUT);
   });
 }
@@ -46,11 +46,13 @@ function GetSpotifyAuthToken() {
 
   if (!storage_access_token) {
     openAuthPopUp();
-    return ListenForAuthResponseMessage().then(saveAuthAndReturnToken);
+    return ListenForAuthResponseMessage()
+      .then(getSpotifyAccessToken)
+      .then(saveAuthAndReturnToken);
   }
 
   if (storage_access_token && storage_refresh_token && storage_expiration_date < Date.now()) {
-    return refreshToken(storage_refresh_token).then(saveAuthAndReturnToken);
+    return getSpotifyAccessToken(storage_refresh_token).then(saveAuthAndReturnToken);
   }
 }
 

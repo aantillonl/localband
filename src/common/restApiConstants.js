@@ -1,5 +1,5 @@
-const home = {
-  url: '/testapi',
+const dbpediaMock = {
+  url: '/dbpediaMock',
 };
 
 const dbpediaProxy = {
@@ -17,7 +17,7 @@ const spotifyToken = {
 const AUTH_SCOPE = 'playlist-modify-private';
 
 module.exports = {
-  home,
+  dbpediaMock,
   dbpediaProxy,
   testToken,
   spotifyToken,

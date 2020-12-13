@@ -1,10 +1,10 @@
-const homeApi = require('./home');
+const dbpediaMockApi = require('./dbpediaMock');
 const dbpediaProxyApi = require('./dbpediaProxy');
 const testTokenApi = require('./testToken');
 const spotifyTokenApi = require('./spotifyToken');
 
 module.exports = {
-  homeApi,
+  dbpediaMockApi,
   dbpediaProxyApi,
   testTokenApi,
   spotifyTokenApi
