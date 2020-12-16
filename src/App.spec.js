@@ -9,8 +9,8 @@ import App from './App';
 import store from './store';
 import searchBoxSlice from './searchBoxSlice';
 import fetchCitiesThunk from './FetchCities';
-import { GetSpotifyAuthToken } from './CreateSpotifyPlaylistButton';
 import createSpotifyPlaylist, {
+  getSpotifyAuthToken,
   getArtistSpotifyId,
   getArtistTopTrackUri,
   createPlaylist,
@@ -127,7 +127,7 @@ describe('Spotify Auth', () => {
     localStorage.setItem('access_token', 'test_token_from_storage');
     const inOneHour = Date.now() + 3600 * 1000;
     localStorage.setItem('expiration_date', inOneHour);
-    return GetSpotifyAuthToken().then(auth_token => {
+    return getSpotifyAuthToken().then(auth_token => {
       expect(auth_token).toEqual('test_token_from_storage');
     });
   });
@@ -141,7 +141,7 @@ describe('Spotify Auth', () => {
         expires_in: 0,
       },
     });
-    const tokenPromise = GetSpotifyAuthToken();
+    const tokenPromise = getSpotifyAuthToken();
     window.dispatchEvent(new MessageEvent('message', { data: { code: 'test_code' }, origin: '*' }));
 
     return tokenPromise.then(access_token => {
@@ -162,7 +162,7 @@ describe('Spotify Auth', () => {
       },
     };
     axios.post.mockResolvedValue(resp);
-    return GetSpotifyAuthToken().then(auth_token => {
+    return getSpotifyAuthToken().then(auth_token => {
       expect(auth_token).toEqual('test_refreshed_token_from_api');
     });
   });
@@ -170,6 +170,7 @@ describe('Spotify Auth', () => {
 
 describe('Create Playlist', () => {
   afterEach(() => {
+    localStorage.clear();
     axios.get.mockReset();
     axios.post.mockReset();
   });
@@ -242,16 +243,24 @@ describe('Create Playlist', () => {
     });
     axios.get.mockImplementation(spotifyApiMock);
     axios.post.mockImplementation(spotifyApiMock);
+    localStorage.setItem('access_token', 'test_token_from_storage');
+    localStorage.setItem('refresh_token', 'test_refresh_token_from_storage');
+    const inOneHour = Date.now() + 3600 * 1000;
+    localStorage.setItem('expiration_date', inOneHour);
     const store = mockStore({
       bandsList: ['test_band'],
       searchBox: { searchString: 'test_playlist' },
     });
     return store
-      .dispatch(createSpotifyPlaylist('test_access_token'))
-      .then(res => expect(res.payload).toEqual({ status: 201 }));
+      .dispatch(createSpotifyPlaylist())
+      .then(res => expect(res.payload).toEqual('playlist_id'));
   });
 
   it('should handle no results from Spotify Search API', () => {
+    localStorage.setItem('access_token', 'test_token_from_storage');
+    localStorage.setItem('refresh_token', 'test_refresh_token_from_storage');
+    const inOneHour = Date.now() + 3600 * 1000;
+    localStorage.setItem('expiration_date', inOneHour);
     const store = mockStore({
       bandsList: ['band_that_doesnt_exist', 'metallica'],
       searchBox: { searchString: 'test_playlist' },
@@ -268,8 +277,8 @@ describe('Create Playlist', () => {
       .mockResolvedValueOnce({ data: { id: 'playlist_id' } }) // Create playlist
       .mockResolvedValueOnce({ status: 201 }); // Add songs to playlist
 
-    return store.dispatch(createSpotifyPlaylist('test_access_token')).then(res => {
-      expect(res.payload).toEqual({ status: 201 });
+    return store.dispatch(createSpotifyPlaylist()).then(res => {
+      expect(res.payload).toEqual('playlist_id');
     });
   });
 });

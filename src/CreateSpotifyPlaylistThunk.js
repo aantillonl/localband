@@ -1,17 +1,21 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Bottleneck from 'bottleneck';
+import { ValidationError } from 'ajv';
 import envConfig from './core/env-config.json';
 import {
   validateCallback,
   spotifySearchResponseValidator,
   spotifyArtistTopTrackValidator,
   spotifyCreatePlaylistValidator,
+  authResponseValidator,
 } from './schemaValidation';
+import { AUTH_SCOPE } from './common/restApiConstants';
 
 const environment = process.env.REACT_APP_ENVIRONMENT;
 const spotifyApiUrl = envConfig[environment]['spotify_api_url'];
 const limiter = new Bottleneck({ maxConcurrent: 1, minTime: 333 });
+const AUTH_TIMEOUT = 1000 * 60; // 1 MIN
 
 function getArtistSpotifyId(access_token, bandName) {
   return axios
@@ -92,7 +96,59 @@ const filterAndValidateCallback = arr => {
   throw new Error('No valid items to create playlist');
 };
 
-export default createAsyncThunk('createSpotifyPlaylist', async (access_token, thunkApi) => {
+function openAuthPopUp() {
+  const authParams = {
+    client_id: '493fa509a9db44d5867e40a7fdcd58a8',
+    response_type: 'code',
+    redirect_uri: 'http://localhost:3000/callback/',
+    scope: AUTH_SCOPE,
+  };
+  window.open(`https://accounts.spotify.com/authorize?${new URLSearchParams(authParams)}`);
+}
+
+function saveAuthDataToLocalStorage(authData) {
+  if (!authResponseValidator(authData)) throw new ValidationError();
+
+  localStorage.setItem('access_token', authData.access_token);
+  localStorage.setItem('refresh_token', authData.refresh_token);
+  localStorage.setItem('expiration_date', Date.now() + authData.expires_in * 1000);
+}
+
+function listenForAuthResponseMessage() {
+  return new Promise(resolve => {
+    window.addEventListener('message', ({ data }) => resolve(data));
+    setTimeout(() => window.removeEventListener('message', resolve), AUTH_TIMEOUT);
+  });
+}
+
+function getSpotifyAuthToken() {
+  const storage_access_token = localStorage.getItem('access_token');
+  const storage_expiration_date = localStorage.getItem('expiration_date');
+  const storage_refresh_token = localStorage.getItem('refresh_token');
+  if (storage_access_token && parseInt(storage_expiration_date) > Date.now())
+    return Promise.resolve(storage_access_token);
+
+  const saveAuthAndReturnToken = ({ data }) => {
+    saveAuthDataToLocalStorage(data);
+    return data.access_token;
+  };
+
+  if (!storage_access_token) {
+    openAuthPopUp();
+    return listenForAuthResponseMessage()
+      .then(getSpotifyAccessTokenFromApi.bind(null, 'authorization_code'))
+      .then(saveAuthAndReturnToken);
+  }
+
+  if (storage_access_token && storage_refresh_token && storage_expiration_date < Date.now()) {
+    return getSpotifyAccessTokenFromApi('refresh_token', storage_refresh_token).then(
+      saveAuthAndReturnToken
+    );
+  }
+}
+
+export default createAsyncThunk('createSpotifyPlaylist', async (_, thunkApi) => {
+  const access_token = await getSpotifyAuthToken();
   const {
     bandsList,
     searchBox: { searchString: playlistName },
@@ -110,20 +166,26 @@ export default createAsyncThunk('createSpotifyPlaylist', async (access_token, th
 
   const spotifyUserId = await getSpotifyUserId(access_token);
   const newPlaylistId = await createPlaylist(access_token, spotifyUserId, playlistName);
-  return addSongsToPlaylist(access_token, newPlaylistId, songUriList);
+  return await addSongsToPlaylist(access_token, newPlaylistId, songUriList).then(
+    () => newPlaylistId
+  );
 });
 
-const getSpotifyAccessToken = async code => {
+const getSpotifyAccessTokenFromApi = async (grant_type, codeOrToken) => {
   const apiUrl = envConfig[environment]['auth_api'];
-  return axios.post(apiUrl, {
-    grant_type: 'authorization_code',
-    code,
-    redirect_uri: 'http://localhost:3000/callback/',
-  });
+  const body = { grant_type };
+  if (grant_type === 'refresh_token') body.refresh_token = codeOrToken;
+  if (grant_type === 'authorization_code') {
+    body.code = codeOrToken;
+    body.redirect_uri = 'http://localhost:3000/callback/';
+  }
+  return axios.post(apiUrl, body);
 };
 
 export {
-  getSpotifyAccessToken,
+  getSpotifyAuthToken,
+  openAuthPopUp,
+  getSpotifyAccessTokenFromApi,
   getArtistSpotifyId,
   getSpotifyUserId,
   createPlaylist,
