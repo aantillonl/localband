@@ -8,7 +8,7 @@
   "devWithProxy": {
     "ui_port": 3001,
     "api_port": 4001,
-    "api_url": "http://localhost:4001/dbpediaProxy/",
+    "api_url": "https://dbpedia.org/sparql",
     "auth_api": "http://localhost:4001/api/token",
     "spotify_api_url": "https://api.spotify.com/v1"
   },
