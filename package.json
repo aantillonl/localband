@@ -55,6 +55,7 @@
     "eject": "react-scripts eject",
     "lint": "eslint 'src/**/*.{js,jsx}' --quiet --fix",
     "linttest": "npm run lint & npm run test",
+    "pretty": "pretty-quick",
     "mock:server": "nodemon ./__mocks__/mock-server.js",
     "start:server": "nodemon server/server.js",
     "start:devserver": "REACT_APP_ENVIRONMENT='devWithProxy' npm run mock:server",

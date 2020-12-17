@@ -6,20 +6,20 @@ const createSpotifyPlaylistSlice = createSlice({
   name: 'createSpotifyPlaylistSlice',
   initialState: { createPlaylistStatus: 'DEFAULT', playlistId: null },
   reducers: {
-    closeModal: () => ({ createPlaylistStatus: 'DEFAULT' }),
+    closeModal: () => ({ createPlaylistStatus: 'DEFAULT' })
   },
   extraReducers: {
     [createSpotifyPlaylistThunk.pending]: () => ({
-      createPlaylistStatus: 'PENDING',
+      createPlaylistStatus: 'PENDING'
     }),
     [createSpotifyPlaylistThunk.rejected]: () => ({
-      createPlaylistStatus: 'REJECTED',
+      createPlaylistStatus: 'REJECTED'
     }),
     [createSpotifyPlaylistThunk.fulfilled]: (_, action) => ({
       createPlaylistStatus: 'FULFILLED',
-      playlistId: action.payload,
-    }),
-  },
+      playlistId: action.payload
+    })
+  }
 });
 
 const createPlaylistStatusSelect = state => state.createPlaylistStatus;
@@ -30,18 +30,32 @@ const modalMessageSelector = createSelector(
       return (
         <span>
           Playlist created successfully.
-          <a href={`https://open.spotify.com/user/spotify/playlist/${playlistId}`}>Open Playlist</a>
+          <a
+            href={`https://open.spotify.com/user/spotify/playlist/${playlistId}`}>
+            Open Playlist
+          </a>
         </span>
       );
     if (createPlaylistStatus === 'REJECTED')
       return 'We could not create your playlist this time :(';
+    if (createPlaylistStatus === 'PENDING')
+      return (
+        <span>
+          Creating Spotify Playlist
+          <br />
+          <img src="/images/loading.gif" height="50" alt="Creating playlist" />
+        </span>
+      );
     return '';
   }
 );
-const showModalSelector = createSelector(createPlaylistStatusSelect, createPlaylistStatus => {
-  if (createPlaylistStatus === 'FULFILLED' || createPlaylistStatus === 'REJECTED') return true;
-  return false;
-});
+const showModalSelector = createSelector(
+  createPlaylistStatusSelect,
+  createPlaylistStatus => {
+    if (createPlaylistStatus === 'DEFAULT') return false;
+    return true;
+  }
+);
 
 export default createSpotifyPlaylistSlice;
 

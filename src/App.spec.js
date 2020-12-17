@@ -15,6 +15,7 @@ import createSpotifyPlaylist, {
   getArtistTopTrackUri,
   createPlaylist,
   addSongsToPlaylist,
+  saveAuthDataToLocalStorage
 } from './CreateSpotifyPlaylistThunk';
 
 jest.mock('axios');
@@ -41,9 +42,11 @@ describe('Action creators', () => {
     const payload = { searchString: 'abc', triggerSearch: true };
     const expectedAction = {
       type: 'searchBox/setSearchString',
-      payload,
+      payload
     };
-    expect(searchBoxSlice.actions.setSearchString(payload)).toEqual(expectedAction);
+    expect(searchBoxSlice.actions.setSearchString(payload)).toEqual(
+      expectedAction
+    );
   });
 });
 
@@ -66,19 +69,21 @@ describe('Async dbpedia actions', () => {
           bindings: [
             {
               city: { value: 'http://dbpedia.org/london' },
-              name: { value: 'London' },
-            },
-          ],
-        },
-      },
+              name: { value: 'London' }
+            }
+          ]
+        }
+      }
     };
     axios.get.mockResolvedValue(resp);
     const store = mockStore({});
     const expectedActions = [
       expect.objectContaining({ type: 'fetchCities/pending' }),
-      expect.objectContaining({ type: 'fetchCities/fulfilled' }),
+      expect.objectContaining({ type: 'fetchCities/fulfilled' })
     ];
-    const promise = store.dispatch(fetchCitiesThunk({ searchString: 'London' }));
+    const promise = store.dispatch(
+      fetchCitiesThunk({ searchString: 'London' })
+    );
     jest.runAllTimers();
     return promise.then(() => {
       expect(store.getActions()).toEqual(expectedActions);
@@ -89,9 +94,11 @@ describe('Async dbpedia actions', () => {
     const store = mockStore({});
     const expectedActions = [
       expect.objectContaining({ type: 'fetchCities/pending' }),
-      expect.objectContaining({ type: 'fetchCities/rejected' }),
+      expect.objectContaining({ type: 'fetchCities/rejected' })
     ];
-    const promise = store.dispatch(fetchCitiesThunk({ searchString: 'London' }));
+    const promise = store.dispatch(
+      fetchCitiesThunk({ searchString: 'London' })
+    );
     promise.abort();
     jest.runAllTimers();
     return promise.then(() => {
@@ -106,9 +113,11 @@ describe('Async dbpedia actions', () => {
     const store = mockStore({});
     const expectedActions = [
       expect.objectContaining({ type: 'fetchCities/pending' }),
-      expect.objectContaining({ type: 'fetchCities/rejected' }),
+      expect.objectContaining({ type: 'fetchCities/rejected' })
     ];
-    const promise = store.dispatch(fetchCitiesThunk({ searchString: 'London' }));
+    const promise = store.dispatch(
+      fetchCitiesThunk({ searchString: 'London' })
+    );
     jest.runAllTimers();
     return promise.then(() => {
       expect(store.getActions()).toEqual(expectedActions);
@@ -138,11 +147,18 @@ describe('Spotify Auth', () => {
       data: {
         access_token: 'test_token_from_api',
         refresh_token: 'test_refresh_token_from_storage',
-        expires_in: 0,
-      },
+        token_type: 'Bearer',
+        scope: 'playlist-modify-private',
+        expires_in: 0
+      }
     });
     const tokenPromise = getSpotifyAuthToken();
-    window.dispatchEvent(new MessageEvent('message', { data: { code: 'test_code' }, origin: '*' }));
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data: { eventType: 'spotifyAuthResoponse', code: 'test_code' },
+        origin: '*'
+      })
+    );
 
     return tokenPromise.then(access_token => {
       expect(access_token).toEqual('test_token_from_api');
@@ -158,13 +174,33 @@ describe('Spotify Auth', () => {
       data: {
         access_token: 'test_refreshed_token_from_api',
         refresh_token: 'test_refresh_token_from_api',
-        expires_in: 0,
-      },
+        token_type: 'Bearer',
+        scope: 'playlist-modify-private',
+        expires_in: 0
+      }
     };
     axios.post.mockResolvedValue(resp);
     return getSpotifyAuthToken().then(auth_token => {
       expect(auth_token).toEqual('test_refreshed_token_from_api');
     });
+  });
+
+  it('should fail to save auth data if doesnt match schema', () => {
+    try {
+      saveAuthDataToLocalStorage({});
+    } catch (e) {
+      expect(e).toBeInstanceOf(ValidationError);
+    }
+  });
+  it('should not update refresh_token if is not included in response', () => {
+    localStorage.setItem('refresh_token', 'test_refresh_token');
+    saveAuthDataToLocalStorage({
+      access_token: 'test_refreshed_token_from_api',
+      token_type: 'Bearer',
+      scope: 'playlist-modify-private',
+      expires_in: 0
+    });
+    expect(localStorage.getItem('refresh_token')).toEqual('test_refresh_token');
   });
 });
 
@@ -178,9 +214,9 @@ describe('Create Playlist', () => {
     const resp = {
       data: {
         artists: {
-          items: [{ id: '08td7MxkoHQkXnWAYD8d6Q' }],
-        },
-      },
+          items: [{ id: '08td7MxkoHQkXnWAYD8d6Q' }]
+        }
+      }
     };
     axios.get.mockResolvedValue(resp);
     return getArtistSpotifyId('test_token', 'Metallica').then(id => {
@@ -217,7 +253,7 @@ describe('Create Playlist', () => {
     return addSongsToPlaylist('test_token', 'test_playlist', [
       'song_uri_1',
       'song_uri_2',
-      'song_uri_3',
+      'song_uri_3'
     ]);
   });
 
@@ -225,7 +261,7 @@ describe('Create Playlist', () => {
     const spotifyApiMock = jest.fn(url => {
       if (url.match(/\/search$/)) {
         return Promise.resolve({
-          data: { artists: { items: [{ id: 'test_artist_id' }] } },
+          data: { artists: { items: [{ id: 'test_artist_id' }] } }
         });
       }
       if (url.match(/\/top-tracks\?/)) {
@@ -249,7 +285,7 @@ describe('Create Playlist', () => {
     localStorage.setItem('expiration_date', inOneHour);
     const store = mockStore({
       bandsList: ['test_band'],
-      searchBox: { searchString: 'test_playlist' },
+      searchBox: { searchString: 'test_playlist' }
     });
     return store
       .dispatch(createSpotifyPlaylist())
@@ -263,12 +299,12 @@ describe('Create Playlist', () => {
     localStorage.setItem('expiration_date', inOneHour);
     const store = mockStore({
       bandsList: ['band_that_doesnt_exist', 'metallica'],
-      searchBox: { searchString: 'test_playlist' },
+      searchBox: { searchString: 'test_playlist' }
     });
     axios.get
       .mockResolvedValueOnce({ data: { artists: { items: [] } } }) // First artist not found
       .mockResolvedValueOnce({
-        data: { artists: { items: [{ id: 'metallica_id' }] } },
+        data: { artists: { items: [{ id: 'metallica_id' }] } }
       }) // 2nd artist found
       .mockResolvedValueOnce({ data: { tracks: [{ uri: 'track_uri' }] } }) // 2nd artist top track
       .mockResolvedValueOnce({ data: { id: 'user_id' } }); // User id

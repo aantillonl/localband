@@ -19,23 +19,23 @@ const dbpediaResponseSchema = {
                   city: {
                     type: 'object',
                     properties: {
-                      value: { type: 'string' },
-                    },
+                      value: { type: 'string' }
+                    }
                   },
                   name: {
                     type: 'object',
                     properties: {
-                      value: { type: 'string' },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  },
+                      value: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 };
 
 const authResponseSchema = {
@@ -46,8 +46,9 @@ const authResponseSchema = {
     expires_in: { type: 'integer' },
     token_type: { type: 'string', pattern: 'Bearer' },
     scope: { type: 'string', pattern: AUTH_SCOPE },
-    refresh_token: { type: 'string' },
+    refresh_token: { type: 'string' }
   },
+  required: ['access_token', 'expires_in', 'token_type', 'scope']
 };
 
 const spotifySearchResponseSchema = {
@@ -69,13 +70,13 @@ const spotifySearchResponseSchema = {
             additionalProperties: true,
             required: ['id'],
             properties: {
-              id: { type: 'string' },
-            },
-          },
-        },
-      },
-    },
-  },
+              id: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  }
 };
 
 const spotifyArtistTopTrackResponseSchema = {
@@ -92,12 +93,12 @@ const spotifyArtistTopTrackResponseSchema = {
         required: ['uri'],
         properties: {
           uri: {
-            type: 'string',
-          },
-        },
-      },
-    },
-  },
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
 };
 
 const spotifyCreatePlaylistResponseSchema = {
@@ -106,8 +107,8 @@ const spotifyCreatePlaylistResponseSchema = {
   additionalProperties: true,
   required: ['id'],
   properties: {
-    id: { type: 'string' },
-  },
+    id: { type: 'string' }
+  }
 };
 
 const ajv = new Ajv({
@@ -116,14 +117,18 @@ const ajv = new Ajv({
     authResponseSchema,
     spotifySearchResponseSchema,
     spotifyArtistTopTrackResponseSchema,
-    spotifyCreatePlaylistResponseSchema,
-  ],
+    spotifyCreatePlaylistResponseSchema
+  ]
 });
 const dbpediaResponseValidator = ajv.getSchema('dbpedia_response_schema');
 const authResponseValidator = ajv.getSchema('spotify_auth_schema');
-const spotifySearchResponseValidator = ajv.getSchema('spotify_search_response_schema');
+const spotifySearchResponseValidator = ajv.getSchema(
+  'spotify_search_response_schema'
+);
 const spotifyArtistTopTrackValidator = ajv.getSchema('artist_top_track_schema');
-const spotifyCreatePlaylistValidator = ajv.getSchema('spotify_create_playlist_response_schema');
+const spotifyCreatePlaylistValidator = ajv.getSchema(
+  'spotify_create_playlist_response_schema'
+);
 const validateCallback = (validate, { data }) => {
   if (!validate(data)) {
     throw new Ajv.ValidationError();
@@ -137,5 +142,5 @@ export {
   authResponseValidator,
   spotifyArtistTopTrackValidator,
   spotifyCreatePlaylistValidator,
-  validateCallback,
+  validateCallback
 };

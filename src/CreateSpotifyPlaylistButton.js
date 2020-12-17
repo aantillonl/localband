@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import CreateSpotifyPlaylistThunk from './CreateSpotifyPlaylistThunk';
 import createSpotifyPlaylistSlice, {
   modalMessageSelector,
-  showModalSelector,
+  showModalSelector
 } from './CreateSpotifyPlaylistSlice';
 
 function CreateSpotifyPlaylistButton({
@@ -13,7 +13,7 @@ function CreateSpotifyPlaylistButton({
   modalMessage,
   showModal,
   CreateSpotifyPlaylistThunk,
-  closeModal,
+  closeModal
 }) {
   async function _onClick() {
     CreateSpotifyPlaylistThunk();
@@ -21,10 +21,17 @@ function CreateSpotifyPlaylistButton({
 
   return (
     <div>
-      <button type="button" onClick={_onClick} disabled={createPlaylistStatus === 'PENDING'}>
+      <button
+        type="button"
+        onClick={_onClick}
+        disabled={createPlaylistStatus === 'PENDING'}
+        className="create-playlist">
         Create Spotify Playlist
       </button>
-      <div id="myModal" className="modal" style={{ display: showModal ? 'block' : 'none' }}>
+      <div
+        id="myModal"
+        className="modal"
+        style={{ display: showModal ? 'block' : 'none' }}>
         <div className="modal-content">
           <span
             className="close"
@@ -45,21 +52,24 @@ function CreateSpotifyPlaylistButton({
 CreateSpotifyPlaylistButton.propTypes = {
   createPlaylistStatus: PropTypes.string.isRequired,
   modalMessage: PropTypes.string.isRequired,
-  showModal: PropTypes.bool.isRequired,
+  showModal: PropTypes.bool.isRequired
 };
 
 const mapStateToProps = state => ({
   ...state.createSpotifyPlaylist,
   modalMessage: modalMessageSelector(state.createSpotifyPlaylist),
-  showModal: showModalSelector(state.createSpotifyPlaylist),
+  showModal: showModalSelector(state.createSpotifyPlaylist)
 });
 CreateSpotifyPlaylistButton.propTypes = {
   CreateSpotifyPlaylistThunk: PropTypes.func.isRequired,
-  closeModal: PropTypes.func.isRequired,
+  closeModal: PropTypes.func.isRequired
 };
 
 const mapDispatchToProps = {
   closeModal: createSpotifyPlaylistSlice.actions.closeModal,
-  CreateSpotifyPlaylistThunk,
+  CreateSpotifyPlaylistThunk
 };
-export default connect(mapStateToProps, mapDispatchToProps)(CreateSpotifyPlaylistButton);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CreateSpotifyPlaylistButton);
