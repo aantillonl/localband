@@ -2,23 +2,18 @@
   "development": {
     "ui_port": 3001,
     "api_port": 4001,
-    "api_url": "http://localhost:4001",
-    "auth_api": "http://localhost:4001/testapi/token"
-  },
-  "devWithProxy": {
-    "ui_port": 3001,
-    "api_port": 4001,
     "api_url": "https://dbpedia.org/sparql",
     "auth_api": "http://localhost:4001/api/token",
-    "spotify_api_url": "https://api.spotify.com/v1"
+    "spotify_api_url": "https://api.spotify.com/v1",
+    "redirect_uri": "http://localhost:3000/callback/"
   },
-  "staging": {
-    "ui_port": 3002,
-    "api_url": "https://ozone-staging.herokuapp.com"
-  },
+
   "production": {
     "ui_port": 3003,
-    "api_url": "https://ozone-production.herokuapp.com"
+    "api_url": "https://dbpedia.org/sparql",
+    "auth_api": "http://localhost:4001/api/token",
+    "spotify_api_url": "https://api.spotify.com/v1",
+    "redirect_uri": "http://localband.alejandroantillon.com/callback/"
   },
   "test": {
     "api_url": "http://testapi",

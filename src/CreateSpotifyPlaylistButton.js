@@ -3,21 +3,45 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import CreateSpotifyPlaylistThunk from './CreateSpotifyPlaylistThunk';
-import createSpotifyPlaylistSlice, {
-  modalMessageSelector,
-  showModalSelector
-} from './CreateSpotifyPlaylistSlice';
+import createSpotifyPlaylistSlice from './CreateSpotifyPlaylistSlice';
 
 function CreateSpotifyPlaylistButton({
   createPlaylistStatus,
-  modalMessage,
-  showModal,
+  playlistId,
   CreateSpotifyPlaylistThunk,
   closeModal
 }) {
   async function _onClick() {
     CreateSpotifyPlaylistThunk();
   }
+
+  let modalMessage;
+  if (createPlaylistStatus === 'FULFILLED') {
+    modalMessage = (
+      <span>
+        Playlist created successfully.
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href={`https://open.spotify.com/user/spotify/playlist/${playlistId}`}>
+          Open Playlist
+        </a>
+      </span>
+    );
+  }
+  if (createPlaylistStatus === 'REJECTED')
+    modalMessage = 'We could not create your playlist this time :(';
+  if (createPlaylistStatus === 'PENDING') {
+    modalMessage = (
+      <span>
+        Creating Spotify Playlist
+        <br />
+        <img src="/images/loading.gif" height="50" alt="Creating playlist" />
+      </span>
+    );
+  }
+
+  const showModal = createPlaylistStatus === 'DEFAULT' ? false : true;
 
   return (
     <div>
@@ -51,14 +75,13 @@ function CreateSpotifyPlaylistButton({
 
 CreateSpotifyPlaylistButton.propTypes = {
   createPlaylistStatus: PropTypes.string.isRequired,
-  modalMessage: PropTypes.string.isRequired,
-  showModal: PropTypes.bool.isRequired
+  playlistId: PropTypes.string
 };
-
+CreateSpotifyPlaylistButton.defaultProps = {
+  playlistId: null
+};
 const mapStateToProps = state => ({
-  ...state.createSpotifyPlaylist,
-  modalMessage: modalMessageSelector(state.createSpotifyPlaylist),
-  showModal: showModalSelector(state.createSpotifyPlaylist)
+  ...state.createSpotifyPlaylist
 });
 CreateSpotifyPlaylistButton.propTypes = {
   CreateSpotifyPlaylistThunk: PropTypes.func.isRequired,

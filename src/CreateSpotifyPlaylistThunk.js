@@ -14,6 +14,8 @@ import { AUTH_SCOPE } from './common/restApiConstants';
 
 const environment = process.env.REACT_APP_ENVIRONMENT;
 const spotifyApiUrl = envConfig[environment]['spotify_api_url'];
+const redirect_uri = envConfig[environment]['redirect_uri'];
+
 const limiter = new Bottleneck({ maxConcurrent: 1, minTime: 333 });
 const AUTH_TIMEOUT = 1000 * 60; // 1 MIN
 
@@ -106,7 +108,7 @@ function openAuthPopUp() {
   const authParams = {
     client_id: '493fa509a9db44d5867e40a7fdcd58a8',
     response_type: 'code',
-    redirect_uri: 'http://localhost:3000/callback/',
+    redirect_uri,
     scope: AUTH_SCOPE
   };
   window.open(
