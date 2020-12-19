@@ -7,5 +7,5 @@ module.exports = {
   dbpediaMockApi,
   dbpediaProxyApi,
   testTokenApi,
-  spotifyTokenApi
+  spotifyTokenApi: spotifyTokenApi.handler
 };

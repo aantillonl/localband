@@ -14,12 +14,6 @@ function routes(server) {
     const apiUrl = restAPIConstant[api.apiName].url;
     server[api.method](apiUrl, apiList[`${urlName}Api`]);
   });
-
-  /* eslint-disable-next-line no-unused-vars */
-  server.use('/*', function(req, res) {
-    console.log('default route');
-    res.json({});
-  });
 }
 
 module.exports = routes;

@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import qs from 'querystring';
 import Bottleneck from 'bottleneck';
 import { ValidationError } from 'ajv';
 import envConfig from './core/env-config.json';
@@ -215,7 +216,9 @@ const getSpotifyAccessTokenFromApi = async (grant_type, codeOrToken) => {
     body.code = codeOrToken;
     body.redirect_uri = 'http://localhost:3000/callback/';
   }
-  return axios.post(apiUrl, body);
+  return axios.post(apiUrl, qs.stringify(body), {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+  });
 };
 
 export {

@@ -67,7 +67,6 @@ function CreateSpotifyPlaylistButton({
           </span>
           <p>{modalMessage}</p>
         </div>
-        ;
       </div>
     </div>
   );
