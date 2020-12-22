@@ -11,7 +11,7 @@
   "production": {
     "ui_port": 3003,
     "api_url": "https://dbpedia.org/sparql",
-    "auth_api": "http://localhost:4001/api/token",
+    "auth_api": "https://api.alejandroantillon.com/token",
     "spotify_api_url": "https://api.spotify.com/v1",
     "redirect_uri": "http://localband.alejandroantillon.com/callback/"
   },

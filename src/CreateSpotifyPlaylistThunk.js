@@ -13,7 +13,7 @@ import {
 } from './schemaValidation';
 import { AUTH_SCOPE } from './common/restApiConstants';
 
-const environment = process.env.REACT_APP_ENVIRONMENT;
+const environment = process.env.REACT_APP_ENVIRONMENT || process.env.NODE_ENV;
 const spotifyApiUrl = envConfig[environment]['spotify_api_url'];
 const redirect_uri = envConfig[environment]['redirect_uri'];
 
@@ -214,7 +214,7 @@ const getSpotifyAccessTokenFromApi = async (grant_type, codeOrToken) => {
   if (grant_type === 'refresh_token') body.refresh_token = codeOrToken;
   if (grant_type === 'authorization_code') {
     body.code = codeOrToken;
-    body.redirect_uri = 'http://localhost:3000/callback/';
+    body.redirect_uri = redirect_uri;
   }
   return axios.post(apiUrl, qs.stringify(body), {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' }

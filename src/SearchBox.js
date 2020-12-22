@@ -6,12 +6,17 @@ import fetchCities from './FetchCities';
 import SuggestionsList from './SuggestionList';
 import suggestionsListSlice from './SuggestionsListSlice';
 
-function SearchBox({ searchString, setSearchString, updateTextOnly, fetchCities, fetchStatus }) {
+function SearchBox({
+  searchString,
+  setSearchString,
+  updateTextOnly,
+  fetchCities,
+  fetchStatus
+}) {
   useEffect(() => {
     const promise = fetchCities({ searchString, updateTextOnly });
-    return () => {
-      promise.abort();
-    };
+
+    return promise.abort.bind(promise);
   }, [searchString, updateTextOnly, fetchCities]);
 
   return (
@@ -26,7 +31,7 @@ function SearchBox({ searchString, setSearchString, updateTextOnly, fetchCities,
         onChange={event =>
           setSearchString({
             searchString: event.target.value,
-            updateTextOnly: false,
+            updateTextOnly: false
           })
         }
         placeholder="Search for a city, e.g. New York"
@@ -41,11 +46,11 @@ SearchBox.propTypes = {
   setSearchString: PropTypes.func.isRequired,
   updateTextOnly: PropTypes.bool.isRequired,
   fetchCities: PropTypes.func.isRequired,
-  fetchStatus: PropTypes.string.isRequired,
+  fetchStatus: PropTypes.string.isRequired
 };
 
 SearchBox.defaultProps = {
-  searchString: '',
+  searchString: ''
 };
 
 const mapStateToProps = state => ({ ...state.searchBox });
@@ -53,6 +58,6 @@ const mapStateToProps = state => ({ ...state.searchBox });
 const mapDispatch = {
   ...searchBoxSlice.actions,
   clearSuggestions: suggestionsListSlice.actions.clearSuggestions,
-  fetchCities,
+  fetchCities
 };
 export default connect(mapStateToProps, mapDispatch)(SearchBox);

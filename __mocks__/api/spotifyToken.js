@@ -1,11 +1,10 @@
 const https = require('https');
-const querystring = require('querystring');
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const auth = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
 
 /* eslint-disable-next-line no-unused-vars */
-exports.handler = function(client_req, client_res, cb) {
+exports.handler = function(client_req, client_res) {
   const options = {
     hostname: 'accounts.spotify.com',
     path: '/api/token',
@@ -22,5 +21,4 @@ exports.handler = function(client_req, client_res, cb) {
   });
 
   client_req.pipe(proxy, { end: true });
-  client_res.on('finish', cb);
 };

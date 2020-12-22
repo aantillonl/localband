@@ -4,7 +4,7 @@ import { dbpediaResponseValidator, validateCallback } from './schemaValidation';
 import renderQueryTemplate from './common/queryTemplate';
 import envConfig from './core/env-config.json';
 
-const environment = process.env.REACT_APP_ENVIRONMENT;
+const environment = process.env.REACT_APP_ENVIRONMENT || process.env.NODE_ENV;
 const apiUrl = envConfig[environment]['api_url'];
 
 function queryDbPedia(apiUrl, searchString) {
@@ -15,32 +15,30 @@ function queryDbPedia(apiUrl, searchString) {
         query: renderQueryTemplate(searchString),
         format: 'application/sparql-results+json',
         timeout: 30000,
-        debug: 'off',
-      },
+        debug: 'off'
+      }
     })
     .then(validateCallback.bind(null, dbpediaResponseValidator))
     .then(data =>
       data.results.bindings.map(b => ({
         uri: b.city.value,
-        displayName: b.name.value,
+        displayName: b.name.value
       }))
     );
 }
 
 export default createAsyncThunk(
   'fetchCities',
-  async ({ searchString }, { signal }) => {
+  async ({ searchString }, thunkAPI) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
-    if (signal.aborted) throw new Error();
+    if (thunkAPI.signal.aborted)
+      thunkAPI({ name: 'AbortError', message: 'Aborted' });
     return queryDbPedia(apiUrl, searchString);
   },
   {
     condition: ({ searchString, updateTextOnly }) => {
-      if (searchString && searchString.length > 3 && !updateTextOnly) {
-        return true;
-      }
-      return false;
-    },
+      return searchString.length > 3 && !updateTextOnly;
+    }
   }
 );
 

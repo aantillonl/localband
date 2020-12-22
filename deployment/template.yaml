@@ -1,0 +1,103 @@
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: localband.alejandroantillon.com
+      WebsiteConfiguration:
+        IndexDocument: index.html
+
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: 'PublicReadGetObject'
+            Effect: 'Allow'
+            Principal: '*'
+            Action:
+              - 's3:GetObject'
+            Resource:
+              - !Sub arn:aws:s3:::${S3Bucket}/*
+
+  TokenExchangeApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      DisableExecuteApiEndpoint: True
+      CorsConfiguration:
+        AllowOrigins:
+          - 'http://localband.alejandroantillon.com'
+        AllowMethods:
+          - POST
+        AllowHeaders:
+          - 'Content-Type'
+      Domain:
+        CertificateArn: arn:aws:acm:eu-west-1:779637100675:certificate/96b0effd-baeb-4f4a-8cdb-40612466a313
+        DomainName: api.alejandroantillon.com
+        EndpointConfiguration: REGIONAL
+        Route53:
+          DistributionDomainName: api.alejandroantillon.com
+          HostedZoneId: Z005955519K22RREETS9K
+      StageName: $default
+
+  TokenExchangeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: handler.handler
+      Description: Add auth header to a request to exchange an auth token
+      Environment:
+        Variables:
+          NODE_ENV: production
+      Events:
+        HttpApiEvent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TokenExchangeApi
+            Method: POST
+            Path: /token
+      FunctionName: spotify-token-exchange
+      Policies:
+        - SSMParameterReadPolicy:
+            ParameterName: !Ref ClientSecret
+        - SSMParameterReadPolicy:
+            ParameterName: !Ref ClientId
+      Runtime: nodejs12.x
+
+  ClientSecret:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: Spotify App Client Secret
+      Name: localband-client-secret
+      Type: String
+      Value: default
+
+  ClientId:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: Spotify App Client Id
+      Name: localband-client-id
+      Type: String
+      Value: default
+
+  LocalbandAppDNS:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: Z005955519K22RREETS9K
+      RecordSets:
+        - AliasTarget:
+            DNSName: s3-website-eu-west-1.amazonaws.com
+            EvaluateTargetHealth: True
+            HostedZoneId: Z1BKCTXD74EZPE
+          Name: localband.alejandroantillon.com
+          Type: A
+
+        - AliasTarget:
+            DNSName: s3-website-eu-west-1.amazonaws.com
+            EvaluateTargetHealth: True
+            HostedZoneId: Z1BKCTXD74EZPE
+          Name: localband.alejandroantillon.com
+          Type: A

@@ -39,7 +39,7 @@ describe('App Component', () => {
 describe('Action creators', () => {
   it('should create the right setSearchString action', () => {
     searchBoxSlice.actions;
-    const payload = { searchString: 'abc', triggerSearch: true };
+    const payload = { searchString: 'abc' };
     const expectedAction = {
       type: 'searchBox/setSearchString',
       payload
@@ -57,9 +57,11 @@ describe('Async dbpedia actions', () => {
 
   it('should not start fetch cities if the search string is less or equal to 3', () => {
     const store = mockStore({});
-    return store.dispatch(fetchCitiesThunk('abc')).then(() => {
-      expect(store.getActions()).toEqual([]);
-    });
+    return store
+      .dispatch(fetchCitiesThunk({ searchString: 'abc' }))
+      .then(() => {
+        expect(store.getActions()).toEqual([]);
+      });
   });
 
   it('should start fetch cities if the search string is greater than 3', () => {
