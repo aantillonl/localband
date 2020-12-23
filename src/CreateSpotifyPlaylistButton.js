@@ -9,7 +9,7 @@ function CreateSpotifyPlaylistButton({
   createPlaylistStatus,
   playlistId,
   CreateSpotifyPlaylistThunk,
-  closeModal
+  closeModal,
 }) {
   async function _onClick() {
     CreateSpotifyPlaylistThunk();
@@ -52,10 +52,7 @@ function CreateSpotifyPlaylistButton({
         className="create-playlist">
         Create Spotify Playlist
       </button>
-      <div
-        id="myModal"
-        className="modal"
-        style={{ display: showModal ? 'block' : 'none' }}>
+      <div id="myModal" className="modal" style={{ display: showModal ? 'block' : 'none' }}>
         <div className="modal-content">
           <span
             className="close"
@@ -74,24 +71,21 @@ function CreateSpotifyPlaylistButton({
 
 CreateSpotifyPlaylistButton.propTypes = {
   createPlaylistStatus: PropTypes.string.isRequired,
-  playlistId: PropTypes.string
+  playlistId: PropTypes.string,
 };
 CreateSpotifyPlaylistButton.defaultProps = {
-  playlistId: null
+  playlistId: null,
 };
 const mapStateToProps = state => ({
-  ...state.createSpotifyPlaylist
+  ...state.createSpotifyPlaylist,
 });
 CreateSpotifyPlaylistButton.propTypes = {
   CreateSpotifyPlaylistThunk: PropTypes.func.isRequired,
-  closeModal: PropTypes.func.isRequired
+  closeModal: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = {
   closeModal: createSpotifyPlaylistSlice.actions.closeModal,
-  CreateSpotifyPlaylistThunk
+  CreateSpotifyPlaylistThunk,
 };
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreateSpotifyPlaylistButton);
+export default connect(mapStateToProps, mapDispatchToProps)(CreateSpotifyPlaylistButton);

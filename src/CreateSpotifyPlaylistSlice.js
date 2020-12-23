@@ -5,20 +5,20 @@ const createSpotifyPlaylistSlice = createSlice({
   name: 'createSpotifyPlaylistSlice',
   initialState: { createPlaylistStatus: 'DEFAULT', playlistId: null },
   reducers: {
-    closeModal: () => ({ createPlaylistStatus: 'DEFAULT' })
+    closeModal: () => ({ createPlaylistStatus: 'DEFAULT' }),
   },
   extraReducers: {
     [createSpotifyPlaylistThunk.pending]: () => ({
-      createPlaylistStatus: 'PENDING'
+      createPlaylistStatus: 'PENDING',
     }),
     [createSpotifyPlaylistThunk.rejected]: () => ({
-      createPlaylistStatus: 'REJECTED'
+      createPlaylistStatus: 'REJECTED',
     }),
     [createSpotifyPlaylistThunk.fulfilled]: (_, action) => ({
       createPlaylistStatus: 'FULFILLED',
-      playlistId: action.payload
-    })
-  }
+      playlistId: action.payload,
+    }),
+  },
 });
 
 export default createSpotifyPlaylistSlice;

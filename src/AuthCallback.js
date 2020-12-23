@@ -3,10 +3,7 @@ import React, { useEffect } from 'react';
 function AuthCallback() {
   useEffect(() => {
     const code = (window.location.search.match(/code=([^&]+)/) || [])[1];
-    window.opener.postMessage(
-      { eventType: 'spotifyAuthResoponse', code },
-      window.location.origin
-    );
+    window.opener.postMessage({ eventType: 'spotifyAuthResoponse', code }, window.location.origin);
     window.close();
   }, []);
 

@@ -8,41 +8,39 @@ const searchBoxSlice = createSlice({
     searchString: '',
     fetchStatus: 'DEFAULT',
     currentRequestId: null,
-    updateTextOnly: true
+    updateTextOnly: true,
   },
   reducers: {
     setSearchString: (state, action) => ({
       ...state,
       searchString: action.payload.searchString,
-      updateTextOnly: false
-    })
+      updateTextOnly: false,
+    }),
   },
   extraReducers: {
     [fetchCities.pending]: (state, action) => ({
       ...state,
       currentRequestId: action.meta.requestId,
-      fetchStatus: 'PENDING'
+      fetchStatus: 'PENDING',
     }),
     [fetchCities.fulfilled]: state => ({ ...state, fetchStatus: 'FINISHED' }),
     [fetchCities.rejected]: (state, action) => ({
       ...state,
       fetchStatus:
-        action.meta.requestId === state.currentRequestId
-          ? 'FINISHED'
-          : state.fetchStatus
+        action.meta.requestId === state.currentRequestId ? 'FINISHED' : state.fetchStatus,
     }),
     [fetchBandNames.pending]: (state, action) => ({
       ...state,
       fetchStatus: 'PENDING',
       searchString: action.meta.arg.displayName,
-      updateTextOnly: true
+      updateTextOnly: true,
     }),
     [fetchBandNames.fulfilled]: state => ({
       ...state,
-      fetchStatus: 'FINISHED'
+      fetchStatus: 'FINISHED',
     }),
-    [fetchBandNames.rejected]: state => ({ ...state, fetchStatus: 'FINISHED' })
-  }
+    [fetchBandNames.rejected]: state => ({ ...state, fetchStatus: 'FINISHED' }),
+  },
 });
 
 export default searchBoxSlice;

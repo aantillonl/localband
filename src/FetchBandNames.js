@@ -14,8 +14,8 @@ export default createAsyncThunk('fetchBandNames', async ({ uri }) => {
         query: bandsQueryTemplate(uri),
         format: 'application/sparql-results+json',
         timeout: 30000,
-        debug: 'off'
-      }
+        debug: 'off',
+      },
     })
     .then(res => {
       return res.data.results.bindings.map(b => b.bandName.value);

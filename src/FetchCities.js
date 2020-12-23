@@ -15,14 +15,14 @@ function queryDbPedia(apiUrl, searchString) {
         query: renderQueryTemplate(searchString),
         format: 'application/sparql-results+json',
         timeout: 30000,
-        debug: 'off'
-      }
+        debug: 'off',
+      },
     })
     .then(validateCallback.bind(null, dbpediaResponseValidator))
     .then(data =>
       data.results.bindings.map(b => ({
         uri: b.city.value,
-        displayName: b.name.value
+        displayName: b.name.value,
       }))
     );
 }
@@ -31,14 +31,13 @@ export default createAsyncThunk(
   'fetchCities',
   async ({ searchString }, thunkAPI) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
-    if (thunkAPI.signal.aborted)
-      thunkAPI({ name: 'AbortError', message: 'Aborted' });
+    if (thunkAPI.signal.aborted) thunkAPI({ name: 'AbortError', message: 'Aborted' });
     return queryDbPedia(apiUrl, searchString);
   },
   {
     condition: ({ searchString, updateTextOnly }) => {
       return searchString.length > 3 && !updateTextOnly;
-    }
+    },
   }
 );
 
