@@ -70,6 +70,24 @@ pre {
   }
 }
 
+.footer {
+  background: #20232a;
+  position: fixed;
+  left: 0;
+  width: 100%;
+  padding: 30px;
+  text-align: center;
+  bottom: 0px;
+  color: #aaa;
+  font-size: 12px;
+
+  a {
+    text-decoration: none;
+    cursor: pointer;
+    color: inherit;
+  }
+}
+
 ul.bands-list {
   list-style: none;
   padding-left: 0px;

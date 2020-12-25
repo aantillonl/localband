@@ -27,6 +27,12 @@ function Home() {
       <h1>Local Band Finder</h1>
       <SearchBox />
       <BandsList />
+      <div className="footer">
+        See source in{' '}
+        <a target="_blank" rel="noreferrer" href="https://github.com/aantillonl/localband/">
+          Github
+        </a>{' '}
+      </div>
     </div>
   );
 }
